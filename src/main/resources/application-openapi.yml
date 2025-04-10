@@ -1,0 +1,530 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    groups-order: DESC
+    operationsSorter: method
+    disable-swagger-default-url: true
+    doc-expansion: none
+    syntax-highlight:
+      activated: true
+  api-docs:
+    path: /api-docs
+  packages-to-scan: com.backend.vet.controller
+  paths-to-match: /**
+
+api:
+  info:
+    title: API Veterinaria
+    description: |
+      API REST completa para la gestión de una clínica veterinaria. 
+      Proporciona funcionalidades para gestionar pacientes, citas, historiales clínicos, 
+      personal médico y servicios ofrecidos por la clínica.
+    version: 1.0.0
+    terms-of-service: https://www.veterinaria.com/terminos
+    contact:
+      name: Soporte Veterinaria
+      url: https://www.veterinaria.com/contacto
+      email: soporte@veterinaria.com
+    license:
+      name: Licencia MIT
+      url: https://opensource.org/licenses/MIT
+  
+  response-codes:
+    ok:
+      description: Operación exitosa
+    created:
+      description: Recurso creado exitosamente
+    no-content:
+      description: Recurso eliminado exitosamente
+    bad-request:
+      description: Datos de entrada inválidos
+    unauthorized:
+      description: No autorizado, requiere autenticación
+    forbidden:
+      description: Acceso prohibido, no tiene permisos suficientes
+    not-found:
+      description: Recurso no encontrado
+    server-error:
+      description: Error en el servidor
+
+  auth:
+    login:
+      description: Inicia sesión en el sistema y obtiene un token JWT
+      notes: |
+        # Credenciales requeridas
+        ```json
+        {
+          "nombreUsuario": "admin",
+          "contrasena": "password123"
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "mensaje": "Login exitoso",
+          "token": "eyJhbGciOiJIUzI1NiIs...",
+          "tipo": "Bearer",
+          "nombreUsuario": "admin",
+          "roles": [
+            {
+              "authority": "ROLE_ADMIN"
+            }
+          ]
+        }
+        ```
+        
+        - El token JWT debe ser utilizado para autorizar peticiones a otros endpoints.
+        - Para usar el token en Swagger UI, haz clic en el botón "Authorize" en la parte superior y 
+          escribe: `Bearer tu_token_aqui`
+
+        # Respuestas con error
+        1. Si las credenciales son inválidas, retorna **401 - No autorizado**.
+    register:
+      description: Registra un nuevo usuario en el sistema
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "nombreUsuario": "nuevo_usuario",
+          "contrasena": "password123",
+          "email": "usuario@example.com",
+          "nombre": "Nombre",
+          "apellido": "Apellido",
+          "roles": ["user"]
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombreUsuario": "nuevo_usuario",
+          "email": "usuario@example.com",
+          "nombre": "Nombre",
+          "apellido": "Apellido",
+          "roles": [
+            {
+              "id": 2,
+              "nombre": "ROLE_USER"
+            }
+          ],
+          "activo": true
+        }
+        ```
+
+        # Respuestas con error
+        1. Si el nombre de usuario ya existe, retorna **400 - Datos de entrada inválidos**.
+
+  usuario:
+    getAll:
+      description: Obtiene todos los usuarios registrados en el sistema
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "nombreUsuario": "admin",
+            "email": "admin@example.com",
+            "nombre": "Administrador",
+            "apellido": "Sistema",
+            "roles": [
+              {
+                "id": 1,
+                "nombre": "ROLE_ADMIN"
+              }
+            ],
+            "activo": true
+          },
+          {
+            "id": 2,
+            "nombreUsuario": "usuario1",
+            "email": "usuario1@example.com",
+            "nombre": "Usuario",
+            "apellido": "Común",
+            "roles": [
+              {
+                "id": 2,
+                "nombre": "ROLE_USER"
+              }
+            ],
+            "activo": true
+          }
+        ]
+        ```
+
+        # Respuestas con error
+        1. Si no está autorizado, retorna **403 - Prohibido**.
+    getById:
+      description: Obtiene un usuario por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombreUsuario": "admin",
+          "email": "admin@example.com",
+          "nombre": "Administrador",
+          "apellido": "Sistema",
+          "roles": [
+            {
+              "id": 1,
+              "nombre": "ROLE_ADMIN"
+            }
+          ],
+          "activo": true
+        }
+        ```
+
+        # Respuestas con error
+        1. Si el usuario no existe, retorna **404 - No encontrado**.
+    update:
+      description: Actualiza los datos de un usuario existente
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "nombreUsuario": "admin",
+          "email": "admin_nuevo@example.com",
+          "nombre": "Administrador Principal",
+          "apellido": "Del Sistema",
+          "roles": ["admin", "user"]
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombreUsuario": "admin",
+          "email": "admin_nuevo@example.com",
+          "nombre": "Administrador Principal",
+          "apellido": "Del Sistema",
+          "roles": [
+            {
+              "id": 1,
+              "nombre": "ROLE_ADMIN"
+            },
+            {
+              "id": 2,
+              "nombre": "ROLE_USER"
+            }
+          ],
+          "activo": true
+        }
+        ```
+
+        # Respuestas con error
+        1. Si el usuario no existe, retorna **404 - No encontrado**.
+    delete:
+      description: Elimina un usuario existente del sistema
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si el usuario no existe, retorna **404 - No encontrado**.
+
+  role:
+    getAll:
+      description: Obtiene todos los roles disponibles en el sistema
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "nombre": "ROLE_ADMIN"
+          },
+          {
+            "id": 2,
+            "nombre": "ROLE_USER"
+          },
+          {
+            "id": 3,
+            "nombre": "ROLE_VETERINARIAN"
+          },
+          {
+            "id": 4,
+            "nombre": "ROLE_RECEPTIONIST"
+          }
+        ]
+        ```
+    getById:
+      description: Obtiene un rol por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombre": "ROLE_ADMIN"
+        }
+        ```
+
+        # Respuestas con error
+        1. Si el rol no existe, retorna **404 - No encontrado**.
+    create:
+      description: Crea un nuevo rol en el sistema
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "nombre": "ROLE_MANAGER"
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 5,
+          "nombre": "ROLE_MANAGER"
+        }
+        ```
+    update:
+      description: Actualiza un rol existente
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "nombre": "ROLE_SUPERVISOR"
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 5,
+          "nombre": "ROLE_SUPERVISOR"
+        }
+        ```
+
+        # Respuestas con error
+        1. Si el rol no existe, retorna **404 - No encontrado**.
+    delete:
+      description: Elimina un rol existente
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si el rol no existe, retorna **404 - No encontrado**.
+        
+  mascota:
+    getAll:
+      description: Obtiene todas las mascotas registradas en el sistema
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "nombre": "Bobby",
+            "especie": "Perro",
+            "raza": "Labrador",
+            "fechaNacimiento": "2019-05-12",
+            "peso": 25.5,
+            "propietario": {
+              "id": 1,
+              "nombre": "Juan",
+              "apellido": "Pérez",
+              "telefono": "555-1234",
+              "email": "juan@example.com"
+            }
+          },
+          {
+            "id": 2,
+            "nombre": "Mittens",
+            "especie": "Gato",
+            "raza": "Siamés",
+            "fechaNacimiento": "2020-02-15",
+            "peso": 4.2,
+            "propietario": {
+              "id": 2,
+              "nombre": "María",
+              "apellido": "Gómez",
+              "telefono": "555-5678",
+              "email": "maria@example.com"
+            }
+          }
+        ]
+        ```
+    getById:
+      description: Obtiene una mascota por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombre": "Bobby",
+          "especie": "Perro",
+          "raza": "Labrador",
+          "fechaNacimiento": "2019-05-12",
+          "peso": 25.5,
+          "propietario": {
+            "id": 1,
+            "nombre": "Juan",
+            "apellido": "Pérez",
+            "telefono": "555-1234",
+            "email": "juan@example.com"
+          }
+        }
+        ```
+
+        # Respuestas con error
+        1. Si la mascota no existe, retorna **404 - No encontrado**.
+    create:
+      description: Registra una nueva mascota en el sistema
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "nombre": "Rocky",
+          "especie": "Perro",
+          "raza": "Pastor Alemán",
+          "fechaNacimiento": "2021-01-10",
+          "peso": 30.2,
+          "propietarioId": 1
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 3,
+          "nombre": "Rocky",
+          "especie": "Perro",
+          "raza": "Pastor Alemán",
+          "fechaNacimiento": "2021-01-10",
+          "peso": 30.2,
+          "propietario": {
+            "id": 1,
+            "nombre": "Juan",
+            "apellido": "Pérez",
+            "telefono": "555-1234",
+            "email": "juan@example.com"
+          }
+        }
+        ```
+
+        # Respuestas con error
+        1. Si los datos son inválidos, retorna **400 - Bad Request**.
+    update:
+      description: Actualiza los datos de una mascota existente
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "nombre": "Rocky",
+          "especie": "Perro",
+          "raza": "Pastor Alemán Mixto",
+          "fechaNacimiento": "2021-01-10",
+          "peso": 32.5,
+          "propietarioId": 1
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 3,
+          "nombre": "Rocky",
+          "especie": "Perro",
+          "raza": "Pastor Alemán Mixto",
+          "fechaNacimiento": "2021-01-10",
+          "peso": 32.5,
+          "propietario": {
+            "id": 1,
+            "nombre": "Juan",
+            "apellido": "Pérez",
+            "telefono": "555-1234",
+            "email": "juan@example.com"
+          }
+        }
+        ```
+
+        # Respuestas con error
+        1. Si la mascota no existe, retorna **404 - No encontrado**.
+    delete:
+      description: Elimina una mascota existente
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si la mascota no existe, retorna **404 - No encontrado**.
+  
+  cita:
+    getAll:
+      description: Obtiene todas las citas programadas
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "fecha": "2023-07-20T10:30:00",
+            "motivo": "Vacunación anual",
+            "estado": "PROGRAMADA",
+            "mascota": {
+              "id": 1,
+              "nombre": "Bobby",
+              "especie": "Perro"
+            },
+            "veterinario": {
+              "id": 3,
+              "nombre": "Carlos",
+              "apellido": "Martínez",
+              "especialidad": "Medicina General"
+            }
+          },
+          {
+            "id": 2,
+            "fecha": "2023-07-21T15:00:00",
+            "motivo": "Control de rutina",
+            "estado": "PROGRAMADA",
+            "mascota": {
+              "id": 2,
+              "nombre": "Mittens",
+              "especie": "Gato"
+            },
+            "veterinario": {
+              "id": 4,
+              "nombre": "Ana",
+              "apellido": "López",
+              "especialidad": "Felinos"
+            }
+          }
+        ]
+        ```
+    getById:
+      description: Obtiene una cita por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "fecha": "2023-07-20T10:30:00",
+          "motivo": "Vacunación anual",
+          "estado": "PROGRAMADA",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby",
+            "especie": "Perro",
+            "raza": "Labrador"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos",
+            "apellido": "Martínez",
+            "especialidad": "Medicina General"
+          }
+        }
+        ```
+
+        # Respuestas con error
+        1. Si la cita no existe, retorna **404 - No encontrado**.
