@@ -64,12 +64,12 @@ public class CitaController {
         return ResponseUtil.created(citaService.createCita(citaDto));
     }
     
-    @Operation(summary = "Actualizar cita", description = "Actualiza los datos de una cita existente")
+    @Operation(summary = "Actualizar cita", description = "${api.cita.update.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Cita actualizada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "404", description = "Cita no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
     public ResponseEntity<CitaDto> updateCita(
@@ -81,11 +81,11 @@ public class CitaController {
         return updatedCita != null ? ResponseUtil.ok(updatedCita) : ResponseUtil.notFound();
     }
     
-    @Operation(summary = "Eliminar cita", description = "Elimina una cita existente")
+    @Operation(summary = "Eliminar cita", description = "${api.cita.delete.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Cita eliminada exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Cita no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -95,10 +95,10 @@ public class CitaController {
         return ResponseUtil.deleteResponse(citaService.deleteCita(id));
     }
     
-    @Operation(summary = "Obtener citas por mascota", description = "Retorna todas las citas de una mascota")
+    @Operation(summary = "Obtener citas por mascota", description = "${api.cita.getByMascota.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/mascota/{mascotaId}")
     public ResponseEntity<List<CitaDto>> getCitasByMascotaId(
@@ -107,10 +107,10 @@ public class CitaController {
         return ResponseEntity.ok(citaService.getCitasByMascotaId(mascotaId));
     }
     
-    @Operation(summary = "Obtener citas por cliente", description = "Retorna todas las citas de las mascotas de un cliente")
+    @Operation(summary = "Obtener citas por cliente", description = "${api.cita.getByCliente.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<CitaDto>> getCitasByClienteId(
@@ -119,10 +119,10 @@ public class CitaController {
         return ResponseEntity.ok(citaService.getCitasByClienteId(clienteId));
     }
     
-    @Operation(summary = "Obtener citas por veterinario", description = "Retorna todas las citas asignadas a un veterinario")
+    @Operation(summary = "Obtener citas por veterinario", description = "${api.cita.getByVeterinario.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinario/{veterinarioId}")
     public ResponseEntity<List<CitaDto>> getCitasByVeterinarioId(
@@ -131,10 +131,10 @@ public class CitaController {
         return ResponseEntity.ok(citaService.getCitasByVeterinarioId(veterinarioId));
     }
     
-    @Operation(summary = "Obtener citas por rango de fechas", description = "Retorna todas las citas dentro de un rango de fechas")
+    @Operation(summary = "Obtener citas por rango de fechas", description = "${api.cita.getByFechaRango.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/fecha")
     public ResponseEntity<List<CitaDto>> getCitasByFechaRango(
@@ -145,10 +145,10 @@ public class CitaController {
         return ResponseEntity.ok(citaService.getCitasByFechaRango(inicio, fin));
     }
     
-    @Operation(summary = "Obtener citas por estado", description = "Retorna todas las citas con un estado específico")
+    @Operation(summary = "Obtener citas por estado", description = "${api.cita.getByEstado.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<CitaDto>> getCitasByEstado(

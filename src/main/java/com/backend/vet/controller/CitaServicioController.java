@@ -37,11 +37,11 @@ public class CitaServicioController {
         return ResponseUtil.ok(citaServicioService.getServiciosByCita(citaId));
     }
     
-    @Operation(summary = "Obtener citas por servicio", description = "Retorna todas las citas asociadas a un servicio")
+    @Operation(summary = "Obtener citas por servicio", description = "${api.citaServicio.getByServicio.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Servicio no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/servicio/{servicioId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -66,12 +66,12 @@ public class CitaServicioController {
         return ResponseEntity.ok(citaServicioService.addServicioToCita(citaServicioDto));
     }
     
-    @Operation(summary = "Actualizar servicio en cita", description = "Actualiza la cantidad de un servicio en una cita")
+    @Operation(summary = "Actualizar servicio en cita", description = "${api.citaServicio.update.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Servicio actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "404", description = "Relación cita-servicio no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -81,11 +81,11 @@ public class CitaServicioController {
         return ResponseEntity.ok(citaServicioService.updateCitaServicio(citaServicioDto));
     }
     
-    @Operation(summary = "Eliminar servicio de cita", description = "Elimina un servicio médico de una cita")
+    @Operation(summary = "Eliminar servicio de cita", description = "${api.citaServicio.delete.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Servicio eliminado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Relación cita-servicio no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/cita/{citaId}/servicio/{servicioId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -98,11 +98,11 @@ public class CitaServicioController {
         return ResponseUtil.deleteResponse(removed);
     }
     
-    @Operation(summary = "Eliminar todos los servicios de una cita", description = "Elimina todos los servicios médicos asociados a una cita")
+    @Operation(summary = "Eliminar todos los servicios de una cita", description = "${api.citaServicio.deleteAll.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Servicios eliminados exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Cita no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/cita/{citaId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")

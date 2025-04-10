@@ -460,7 +460,7 @@ api:
   
   cita:
     getAll:
-      description: Obtiene todas las citas programadas
+      description: Obtiene todas las citas programadas en el sistema
       notes: |
         # Respuesta exitosa
         ```json
@@ -480,23 +480,6 @@ api:
               "nombre": "Carlos",
               "apellido": "Martínez",
               "especialidad": "Medicina General"
-            }
-          },
-          {
-            "id": 2,
-            "fecha": "2023-07-21T15:00:00",
-            "motivo": "Control de rutina",
-            "estado": "PROGRAMADA",
-            "mascota": {
-              "id": 2,
-              "nombre": "Mittens",
-              "especie": "Gato"
-            },
-            "veterinario": {
-              "id": 4,
-              "nombre": "Ana",
-              "apellido": "López",
-              "especialidad": "Felinos"
             }
           }
         ]
@@ -528,3 +511,517 @@ api:
 
         # Respuestas con error
         1. Si la cita no existe, retorna **404 - No encontrado**.
+    create:
+      description: Crea una nueva cita en el sistema
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "fecha": "2023-08-15T14:30:00",
+          "motivo": "Control de rutina",
+          "estado": "PROGRAMADA",
+          "mascotaId": 1,
+          "veterinarioId": 3
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 3,
+          "fecha": "2023-08-15T14:30:00",
+          "motivo": "Control de rutina",
+          "estado": "PROGRAMADA",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby",
+            "especie": "Perro"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos",
+            "apellido": "Martínez",
+            "especialidad": "Medicina General"
+          }
+        }
+        ```
+    update:
+      description: Actualiza los datos de una cita existente
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "fecha": "2023-08-16T16:00:00",
+          "motivo": "Control de rutina y vacunación",
+          "estado": "PROGRAMADA",
+          "mascotaId": 1,
+          "veterinarioId": 3
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 3,
+          "fecha": "2023-08-16T16:00:00",
+          "motivo": "Control de rutina y vacunación",
+          "estado": "PROGRAMADA",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby",
+            "especie": "Perro"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos",
+            "apellido": "Martínez",
+            "especialidad": "Medicina General"
+          }
+        }
+        ```
+    delete:
+      description: Elimina una cita existente del sistema
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si la cita no existe, retorna **404 - No encontrado**.
+    getByMascota:
+      description: Obtiene todas las citas programadas para una mascota
+      notes: |
+        # Respuesta exitosa
+        Lista de citas asociadas a la mascota especificada.
+    getByCliente:
+      description: Obtiene todas las citas programadas para las mascotas de un cliente
+      notes: |
+        # Respuesta exitosa
+        Lista de citas asociadas a las mascotas del cliente especificado.
+    getByVeterinario:
+      description: Obtiene todas las citas asignadas a un veterinario
+      notes: |
+        # Respuesta exitosa
+        Lista de citas asignadas al veterinario especificado.
+    getByFechaRango:
+      description: Obtiene todas las citas dentro de un rango de fechas
+      notes: |
+        # Respuesta exitosa
+        Lista de citas dentro del rango de fechas especificado.
+    getByEstado:
+      description: Obtiene todas las citas con un estado específico
+      notes: |
+        # Respuesta exitosa
+        Lista de citas que tienen el estado especificado (PROGRAMADA, ATENDIDA, CANCELADA).
+        
+  historialClinico:
+    getAll:
+      description: Obtiene todos los registros de historial clínico
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "fecha": "2023-06-15T11:30:00",
+            "diagnostico": "Otitis externa",
+            "tratamiento": "Gotas óticas antibióticas",
+            "observaciones": "Mejoría esperada en 7 días",
+            "mascota": {
+              "id": 1,
+              "nombre": "Bobby"
+            },
+            "veterinario": {
+              "id": 3,
+              "nombre": "Carlos Martínez"
+            },
+            "cita": {
+              "id": 5,
+              "fecha": "2023-06-15T11:00:00"
+            }
+          }
+        ]
+        ```
+    getById:
+      description: Obtiene un registro de historial clínico por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "fecha": "2023-06-15T11:30:00",
+          "diagnostico": "Otitis externa",
+          "tratamiento": "Gotas óticas antibióticas",
+          "observaciones": "Mejoría esperada en 7 días",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby",
+            "especie": "Perro",
+            "raza": "Labrador"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos",
+            "apellido": "Martínez"
+          },
+          "cita": {
+            "id": 5,
+            "fecha": "2023-06-15T11:00:00",
+            "motivo": "Revisión por infección"
+          }
+        }
+        ```
+    create:
+      description: Crea un nuevo registro en el historial clínico
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "fecha": "2023-07-10T09:45:00",
+          "diagnostico": "Dermatitis alérgica",
+          "tratamiento": "Prednisolona 5mg c/12h x 5 días",
+          "observaciones": "Evitar contacto con alérgenos",
+          "mascotaId": 1,
+          "veterinarioId": 3,
+          "citaId": 8
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 10,
+          "fecha": "2023-07-10T09:45:00",
+          "diagnostico": "Dermatitis alérgica",
+          "tratamiento": "Prednisolona 5mg c/12h x 5 días",
+          "observaciones": "Evitar contacto con alérgenos",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos Martínez"
+          },
+          "cita": {
+            "id": 8,
+            "fecha": "2023-07-10T09:30:00"
+          }
+        }
+        ```
+    update:
+      description: Actualiza un registro existente del historial clínico
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "diagnostico": "Dermatitis alérgica por contacto",
+          "tratamiento": "Prednisolona 5mg c/12h x 7 días, champú hipoalergénico",
+          "observaciones": "Evitar contacto con detergentes y perfumes"
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 10,
+          "fecha": "2023-07-10T09:45:00",
+          "diagnostico": "Dermatitis alérgica por contacto",
+          "tratamiento": "Prednisolona 5mg c/12h x 7 días, champú hipoalergénico",
+          "observaciones": "Evitar contacto con detergentes y perfumes",
+          "mascota": {
+            "id": 1,
+            "nombre": "Bobby"
+          },
+          "veterinario": {
+            "id": 3,
+            "nombre": "Carlos Martínez"
+          },
+          "cita": {
+            "id": 8,
+            "fecha": "2023-07-10T09:30:00"
+          }
+        }
+        ```
+    delete:
+      description: Elimina un registro del historial clínico
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si el registro no existe, retorna **404 - No encontrado**.
+    getByMascota:
+      description: Obtiene todos los registros del historial clínico de una mascota
+      notes: |
+        # Respuesta exitosa
+        Lista de registros clínicos pertenecientes a la mascota especificada.
+    getByCliente:
+      description: Obtiene todos los registros del historial clínico de las mascotas de un cliente
+      notes: |
+        # Respuesta exitosa
+        Lista de registros clínicos de todas las mascotas pertenecientes al cliente especificado.
+    getByVeterinario:
+      description: Obtiene todos los registros del historial clínico creados por un veterinario
+      notes: |
+        # Respuesta exitosa
+        Lista de registros clínicos creados por el veterinario especificado.
+    getByCita:
+      description: Obtiene los registros del historial clínico asociados a una cita
+      notes: |
+        # Respuesta exitosa
+        Lista de registros clínicos asociados a la cita especificada.
+    getByFechaRango:
+      description: Obtiene todos los registros del historial clínico dentro de un rango de fechas
+      notes: |
+        # Respuesta exitosa
+        Lista de registros clínicos creados dentro del rango de fechas especificado.
+
+  citaServicio:
+    getByCita:
+      description: Obtiene todos los servicios médicos asociados a una cita
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "cita": {
+              "id": 5,
+              "fecha": "2023-06-15T11:00:00"
+            },
+            "servicio": {
+              "id": 2,
+              "nombre": "Consulta general",
+              "precio": 50.00
+            },
+            "cantidad": 1,
+            "precio": 50.00
+          },
+          {
+            "id": 2,
+            "cita": {
+              "id": 5,
+              "fecha": "2023-06-15T11:00:00"
+            },
+            "servicio": {
+              "id": 8,
+              "nombre": "Análisis de sangre",
+              "precio": 75.00
+            },
+            "cantidad": 1,
+            "precio": 75.00
+          }
+        ]
+        ```
+    getByServicio:
+      description: Obtiene todas las citas que incluyen un servicio específico
+      notes: |
+        # Respuesta exitosa
+        Lista de registros cita-servicio para el servicio especificado.
+    addServicio:
+      description: Agrega un servicio médico a una cita
+      notes: |
+        # Datos requeridos
+        ```json
+        {
+          "citaId": 5,
+          "servicioId": 3,
+          "cantidad": 1,
+          "precio": 35.00
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 15,
+          "cita": {
+            "id": 5,
+            "fecha": "2023-06-15T11:00:00"
+          },
+          "servicio": {
+            "id": 3,
+            "nombre": "Vacunación",
+            "precio": 35.00
+          },
+          "cantidad": 1,
+          "precio": 35.00
+        }
+        ```
+    update:
+      description: Actualiza un servicio médico en una cita
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "id": 15,
+          "citaId": 5,
+          "servicioId": 3,
+          "cantidad": 2,
+          "precio": 35.00
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 15,
+          "cita": {
+            "id": 5,
+            "fecha": "2023-06-15T11:00:00"
+          },
+          "servicio": {
+            "id": 3,
+            "nombre": "Vacunación",
+            "precio": 35.00
+          },
+          "cantidad": 2,
+          "precio": 70.00
+        }
+        ```
+    delete:
+      description: Elimina un servicio médico de una cita
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si la relación cita-servicio no existe, retorna **404 - No encontrado**.
+    deleteAll:
+      description: Elimina todos los servicios médicos asociados a una cita
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si la cita no existe, retorna **404 - No encontrado**.
+
+  archivoClinico:
+    getAll:
+      description: Obtiene todos los archivos clínicos del sistema
+      notes: |
+        # Respuesta exitosa
+        ```json
+        [
+          {
+            "id": 1,
+            "nombre": "radiografia_torax.jpg",
+            "ruta": "archivos/clinicos/uuid_radiografia_torax.jpg",
+            "tipoMime": "image/jpeg",
+            "tamanio": 2048576,
+            "descripcion": "Radiografía de tórax",
+            "historialClinico": {
+              "id": 10,
+              "fecha": "2023-07-10T09:45:00"
+            }
+          }
+        ]
+        ```
+    getById:
+      description: Obtiene un archivo clínico por su ID
+      notes: |
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 1,
+          "nombre": "radiografia_torax.jpg",
+          "ruta": "archivos/clinicos/uuid_radiografia_torax.jpg",
+          "tipoMime": "image/jpeg",
+          "tamanio": 2048576,
+          "descripcion": "Radiografía de tórax",
+          "historialClinico": {
+            "id": 10,
+            "fecha": "2023-07-10T09:45:00",
+            "diagnostico": "Neumonía"
+          }
+        }
+        ```
+    upload:
+      description: Sube un nuevo archivo clínico al sistema
+      notes: |
+        # Formulario requerido
+        - **file**: El archivo a subir (multipart/form-data)
+        - **historialClinicoId**: ID del registro de historial clínico al que pertenece
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 5,
+          "nombre": "analisis_sangre.pdf",
+          "ruta": "archivos/clinicos/uuid_analisis_sangre.pdf",
+          "tipoMime": "application/pdf",
+          "tamanio": 524288,
+          "descripcion": "Análisis de sangre completo",
+          "historialClinico": {
+            "id": 12,
+            "fecha": "2023-08-05T10:15:00"
+          }
+        }
+        ```
+    update:
+      description: Actualiza los metadatos de un archivo clínico existente
+      notes: |
+        # Datos para actualización
+        ```json
+        {
+          "nombre": "analisis_sangre_completo.pdf",
+          "descripcion": "Análisis de sangre completo con bioquímica"
+        }
+        ```
+        
+        # Respuesta exitosa
+        ```json
+        {
+          "id": 5,
+          "nombre": "analisis_sangre_completo.pdf",
+          "ruta": "archivos/clinicos/uuid_analisis_sangre.pdf",
+          "tipoMime": "application/pdf",
+          "tamanio": 524288,
+          "descripcion": "Análisis de sangre completo con bioquímica",
+          "historialClinico": {
+            "id": 12,
+            "fecha": "2023-08-05T10:15:00"
+          }
+        }
+        ```
+    download:
+      description: Descarga un archivo clínico por su nombre de archivo
+      notes: |
+        # Respuesta exitosa
+        Archivo binario con las cabeceras HTTP adecuadas para descarga.
+
+        # Respuestas con error
+        1. Si el archivo no existe, retorna **404 - No encontrado**.
+    delete:
+      description: Elimina un archivo clínico existente
+      notes: |
+        # Respuesta exitosa
+        - Código: **204 No Content**
+        - No devuelve contenido.
+
+        # Respuestas con error
+        1. Si el archivo no existe, retorna **404 - No encontrado**.
+    getByHistorial:
+      description: Obtiene todos los archivos asociados a un registro de historial clínico
+      notes: |
+        # Respuesta exitosa
+        Lista de archivos clínicos pertenecientes al historial clínico especificado.
+    getByMascota:
+      description: Obtiene todos los archivos clínicos de una mascota
+      notes: |
+        # Respuesta exitosa
+        Lista de archivos clínicos relacionados con todos los historiales clínicos de la mascota especificada.
+    getByNombre:
+      description: Busca archivos clínicos por nombre
+      notes: |
+        # Respuesta exitosa
+        Lista de archivos clínicos cuyo nombre contiene el texto buscado.
+    getByTipoMime:
+      description: Obtiene archivos clínicos por tipo MIME
+      notes: |
+        # Respuesta exitosa
+        Lista de archivos clínicos del tipo MIME especificado (ej: image/jpeg, application/pdf).

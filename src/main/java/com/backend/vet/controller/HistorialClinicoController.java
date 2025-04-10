@@ -101,10 +101,10 @@ public class HistorialClinicoController {
         return ResponseUtil.deleteResponse(historialClinicoService.deleteHistorialClinico(id));
     }
     
-    @Operation(summary = "Obtener historial clínico por mascota", description = "Retorna todos los registros de una mascota")
+    @Operation(summary = "Obtener historial clínico por mascota", description = "${api.historialClinico.getByMascota.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/mascota/{mascotaId}")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByMascotaId(
@@ -113,10 +113,10 @@ public class HistorialClinicoController {
         return ResponseEntity.ok(historialClinicoService.getHistorialClinicoByMascotaId(mascotaId));
     }
     
-    @Operation(summary = "Obtener historial clínico por cliente", description = "Retorna todos los registros de las mascotas de un cliente")
+    @Operation(summary = "Obtener historial clínico por cliente", description = "${api.historialClinico.getByCliente.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByClienteId(
@@ -125,10 +125,10 @@ public class HistorialClinicoController {
         return ResponseEntity.ok(historialClinicoService.getHistorialClinicoByClienteId(clienteId));
     }
     
-    @Operation(summary = "Obtener historial clínico por veterinario", description = "Retorna todos los registros creados por un veterinario")
+    @Operation(summary = "Obtener historial clínico por veterinario", description = "${api.historialClinico.getByVeterinario.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinario/{veterinarioId}")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByVeterinarioId(
@@ -137,10 +137,10 @@ public class HistorialClinicoController {
         return ResponseEntity.ok(historialClinicoService.getHistorialClinicoByVeterinarioId(veterinarioId));
     }
     
-    @Operation(summary = "Obtener historial clínico por cita", description = "Retorna el registro de historial clínico asociado a una cita")
+    @Operation(summary = "Obtener historial clínico por cita", description = "${api.historialClinico.getByCita.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cita/{citaId}")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByCitaId(
@@ -149,10 +149,10 @@ public class HistorialClinicoController {
         return ResponseEntity.ok(historialClinicoService.getHistorialClinicoByCitaId(citaId));
     }
     
-    @Operation(summary = "Obtener historial clínico por rango de fechas", description = "Retorna todos los registros dentro de un rango de fechas")
+    @Operation(summary = "Obtener historial clínico por rango de fechas", description = "${api.historialClinico.getByFechaRango.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/fecha")
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
