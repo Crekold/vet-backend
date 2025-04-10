@@ -25,19 +25,19 @@ public class ServicioController {
     @Autowired
     private ServicioService servicioService;
     
-    @Operation(summary = "Obtener todos los servicios", description = "Retorna todos los servicios médicos disponibles")
+    @Operation(summary = "Obtener todos los servicios", description = "${api.servicio.getAll.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping
     public ResponseEntity<List<ServicioDto>> getAllServicios() {
         return ResponseUtil.ok(servicioService.getAllServicios());
     }
     
-    @Operation(summary = "Obtener servicio por ID", description = "Retorna un servicio médico por su ID")
+    @Operation(summary = "Obtener servicio por ID", description = "${api.servicio.getById.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
     public ResponseEntity<ServicioDto> getServicioById(
@@ -47,9 +47,9 @@ public class ServicioController {
         return servicio != null ? ResponseUtil.ok(servicio) : ResponseUtil.notFound();
     }
     
-    @Operation(summary = "Buscar servicios por nombre", description = "Retorna todos los servicios cuyo nombre contenga el texto buscado")
+    @Operation(summary = "Buscar servicios por nombre", description = "${api.servicio.getByNombre.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/buscar")
     public ResponseEntity<List<ServicioDto>> getServiciosByNombre(
@@ -58,9 +58,9 @@ public class ServicioController {
         return ResponseUtil.ok(servicioService.getServiciosByNombre(nombre));
     }
     
-    @Operation(summary = "Buscar servicios por precio máximo", description = "Retorna todos los servicios con precio menor o igual al especificado")
+    @Operation(summary = "Buscar servicios por precio máximo", description = "${api.servicio.getByPrecioMax.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/precio/hasta/{precio}")
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMenorIgual(
@@ -69,9 +69,9 @@ public class ServicioController {
         return ResponseUtil.ok(servicioService.getServiciosPrecioMenorIgual(precio));
     }
     
-    @Operation(summary = "Buscar servicios por precio mínimo", description = "Retorna todos los servicios con precio mayor o igual al especificado")
+    @Operation(summary = "Buscar servicios por precio mínimo", description = "${api.servicio.getByPrecioMin.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/precio/desde/{precio}")
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMayorIgual(
@@ -80,11 +80,11 @@ public class ServicioController {
         return ResponseUtil.ok(servicioService.getServiciosPrecioMayorIgual(precio));
     }
     
-    @Operation(summary = "Crear un nuevo servicio", description = "Crea un nuevo servicio médico")
+    @Operation(summary = "Crear un nuevo servicio", description = "${api.servicio.create.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Servicio creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "201", description = "${api.response-codes.created.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -94,12 +94,12 @@ public class ServicioController {
         return ResponseUtil.created(servicioService.createServicio(servicioDto));
     }
     
-    @Operation(summary = "Actualizar servicio", description = "Actualiza los datos de un servicio existente")
+    @Operation(summary = "Actualizar servicio", description = "${api.servicio.update.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Servicio actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "404", description = "Servicio no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -112,11 +112,11 @@ public class ServicioController {
         return updatedServicio != null ? ResponseUtil.ok(updatedServicio) : ResponseUtil.notFound();
     }
     
-    @Operation(summary = "Eliminar servicio", description = "Elimina un servicio existente")
+    @Operation(summary = "Eliminar servicio", description = "${api.servicio.delete.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Servicio eliminado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Servicio no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

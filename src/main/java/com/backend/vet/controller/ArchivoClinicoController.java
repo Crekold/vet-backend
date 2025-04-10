@@ -29,10 +29,10 @@ public class ArchivoClinicoController {
     @Autowired
     private ArchivoClinicoService archivoClinicoService;
     
-    @Operation(summary = "Obtener todos los archivos clínicos", description = "Retorna todos los archivos clínicos registrados")
+    @Operation(summary = "Obtener todos los archivos clínicos", description = "${api.archivoClinico.getAll.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -40,11 +40,11 @@ public class ArchivoClinicoController {
         return ResponseUtil.ok(archivoClinicoService.getAllArchivosClinico());
     }
     
-    @Operation(summary = "Obtener archivo clínico por ID", description = "Retorna un archivo clínico por su ID")
+    @Operation(summary = "Obtener archivo clínico por ID", description = "${api.archivoClinico.getById.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Archivo no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
     public ResponseEntity<ArchivoClinicoDto> getArchivoClinicoById(
@@ -54,11 +54,11 @@ public class ArchivoClinicoController {
         return archivoClinico != null ? ResponseUtil.ok(archivoClinico) : ResponseUtil.notFound();
     }
     
-    @Operation(summary = "Subir archivo clínico", description = "Carga un nuevo archivo y lo asocia a un historial clínico")
+    @Operation(summary = "Subir archivo clínico", description = "${api.archivoClinico.upload.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Archivo cargado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('VETERINARIO') or hasRole('ADMIN')")
@@ -107,10 +107,10 @@ public class ArchivoClinicoController {
         return ResponseUtil.deleteResponse(archivoClinicoService.deleteArchivoClinico(id));
     }
     
-    @Operation(summary = "Descargar archivo clínico", description = "Descarga un archivo clínico por su nombre")
+    @Operation(summary = "Descargar archivo clínico", description = "${api.archivoClinico.download.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Archivo no encontrado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(

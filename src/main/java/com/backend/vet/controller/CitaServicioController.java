@@ -24,11 +24,11 @@ public class CitaServicioController {
     @Autowired
     private CitaServicioService citaServicioService;
     
-    @Operation(summary = "Obtener servicios por cita", description = "Retorna todos los servicios asociados a una cita")
+    @Operation(summary = "Obtener servicios por cita", description = "${api.citaServicio.getByCita.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Cita no encontrada"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cita/{citaId}")
     public ResponseEntity<List<CitaServicioDto>> getServiciosByCita(
@@ -51,12 +51,12 @@ public class CitaServicioController {
         return ResponseEntity.ok(citaServicioService.getCitasByServicio(servicioId));
     }
     
-    @Operation(summary = "Agregar servicio a cita", description = "Asocia un servicio médico a una cita")
+    @Operation(summary = "Agregar servicio a cita", description = "${api.citaServicio.addServicio.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Servicio agregado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "404", description = "Cita o servicio no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")

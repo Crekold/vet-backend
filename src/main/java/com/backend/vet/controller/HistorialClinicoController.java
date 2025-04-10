@@ -26,10 +26,10 @@ public class HistorialClinicoController {
     @Autowired
     private HistorialClinicoService historialClinicoService;
     
-    @Operation(summary = "Obtener todos los registros de historial clínico", description = "Retorna todos los registros de historial clínico")
+    @Operation(summary = "Obtener todos los registros de historial clínico", description = "${api.historialClinico.getAll.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
@@ -37,11 +37,11 @@ public class HistorialClinicoController {
         return ResponseUtil.ok(historialClinicoService.getAllHistorialClinico());
     }
     
-    @Operation(summary = "Obtener historial clínico por ID", description = "Retorna un registro de historial clínico por su ID")
+    @Operation(summary = "Obtener historial clínico por ID", description = "${api.historialClinico.getById.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Operación exitosa"),
-        @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
     public ResponseEntity<HistorialClinicoDto> getHistorialClinicoById(
@@ -51,11 +51,11 @@ public class HistorialClinicoController {
         return historialClinico != null ? ResponseUtil.ok(historialClinico) : ResponseUtil.notFound();
     }
     
-    @Operation(summary = "Crear un nuevo registro de historial clínico", description = "Crea un nuevo registro en el historial clínico")
+    @Operation(summary = "Crear un nuevo registro de historial clínico", description = "${api.historialClinico.create.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Registro creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
     @PreAuthorize("hasRole('VETERINARIO') or hasRole('ADMIN')")
@@ -65,12 +65,12 @@ public class HistorialClinicoController {
         return ResponseEntity.ok(historialClinicoService.createHistorialClinico(historialClinicoDto));
     }
     
-    @Operation(summary = "Actualizar registro de historial clínico", description = "Actualiza los datos de un registro existente")
+    @Operation(summary = "Actualizar registro de historial clínico", description = "${api.historialClinico.update.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Registro actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Solicitud inválida"),
-        @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('VETERINARIO') or hasRole('ADMIN')")
@@ -87,11 +87,11 @@ public class HistorialClinicoController {
         }
     }
     
-    @Operation(summary = "Eliminar registro de historial clínico", description = "Elimina un registro existente")
+    @Operation(summary = "Eliminar registro de historial clínico", description = "${api.historialClinico.delete.description}")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Registro eliminado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "Registro no encontrado"),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado")
+        @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
