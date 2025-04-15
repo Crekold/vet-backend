@@ -1,94 +1,186 @@
-# vet-backend
+# 🐾 VET-BACKEND | Sistema de Gestión Veterinaria
 
-Una breve descripción de lo que hace este proyecto. Por ejemplo: "Backend para el sistema de gestión de veterinaria XYZ".
+![Java](https://img.shields.io/badge/Java-17%2B-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green)
+![Licencia](https://img.shields.io/badge/Licencia-MIT-blue)
 
-## Descripción
+API REST para la gestión completa de clínicas veterinarias. Sistema integral para administrar pacientes, historiales clínicos, citas, servicios y documentación médica.
 
-Descripción más detallada del proyecto. ¿Qué problema resuelve? ¿Cuáles son sus principales características?
+## 📋 Contenido
 
-## Empezando
+- Descripción
+- Características
+- Tecnologías
+- Requisitos previos
+- Instalación y configuración
+- Documentación de la API
+- Estructura del proyecto
+- Pruebas
+- Contribución
+- Licencia
 
-Instrucciones sobre cómo poner en marcha el proyecto localmente.
+## 📄 Descripción
 
-### Prerrequisitos
+VET-BACKEND es una solución completa para la gestión de clínicas veterinarias, desarrollada con Spring Boot. Proporciona una API REST para administrar todos los aspectos relacionados con la atención veterinaria, incluyendo:
 
-Qué software necesitas tener instalado antes de empezar:
+- Gestión de historiales clínicos de pacientes
+- Administración de citas y servicios
+- Almacenamiento y gestión de archivos clínicos (radiografías, análisis, etc.)
+- Sistema de usuarios con roles específicos (administrador, veterinario, empleado)
+- Dashboard con estadísticas y métricas relevantes
 
-*   Java Development Kit (JDK) - Especifica la versión, por ejemplo: JDK 17 o superior.
-*   Maven o Gradle - Especifica cuál y la versión, por ejemplo: Maven 3.8+ / Gradle 7.0+.
-*   Base de datos (si aplica) - Por ejemplo: PostgreSQL, MySQL, H2.
-*   Otras dependencias (si aplica).
+## ✨ Características
 
-### Instalación
+- **Gestión de pacientes y clientes**: Registro completo de mascotas y sus propietarios
+- **Historiales clínicos**: Creación y seguimiento de registros médicos detallados
+- **Sistema de citas**: Programación y gestión de citas con veterinarios específicos
+- **Gestión de archivos**: Almacenamiento de documentos clínicos (radiografías, análisis, etc.)
+- **Control de usuarios**: Sistema de autenticación y autorización basado en roles
+- **Estadísticas**: Dashboard con indicadores clave para la administración
+- **API RESTful**: Endpoints bien documentados para integraciones
 
-Pasos para clonar, construir y ejecutar el proyecto:
+## 🔧 Tecnologías
 
-1.  Clona el repositorio:
-    ```bash
-    git clone https://github.com/Crekold/vet-backend.git
-    cd vet-backend
-    ```
-2.  Construye el proyecto (ejemplo con Maven):
-    ```bash
-    mvn clean install
-    ```
-    o con Gradle:
-    ```bash
-    ./gradlew build
-    ```
-3.  Configura las variables de entorno (si es necesario), como credenciales de base de datos. Puedes crear un archivo `.env` o configurar propiedades en `application.properties`/`application.yml`.
-4.  Ejecuta la aplicación (ejemplo con Spring Boot):
-    ```bash
-    mvn spring-boot:run
-    ```
-    o ejecutando el JAR:
-    ```bash
-    java -jar target/vet-backend-0.0.1-SNAPSHOT.jar
-    ```
+- **Lenguaje**: Java 17+
+- **Framework**: Spring Boot 3.x
+- **Seguridad**: Spring Security con JWT
+- **Documentación**: OpenAPI / Swagger
+- **Persistencia**: JPA/Hibernate
+- **Base de datos**: PostgreSQL (configurable)
+- **Construcción**: Maven
+- **Testing**: JUnit 5, Mockito
 
-## Uso
+## 🔍 Requisitos previos
 
-Cómo usar la aplicación una vez que está corriendo. Si es una API REST, menciona los endpoints principales o enlaza a la documentación de la API (por ejemplo, Swagger UI en `/swagger-ui.html`).
+Para configurar este proyecto necesitarás:
 
-Ejemplo:
-La API estará disponible en `http://localhost:8080` (o el puerto que hayas configurado).
+- Java JDK 17 o superior
+- Maven 3.8+ o Gradle 7.0+
+- PostgreSQL u otra base de datos compatible
+- Git
+- IDE compatible con Spring Boot (IntelliJ IDEA, Eclipse, VS Code)
 
-## Documentación de la API (Opcional)
+## 🚀 Instalación y configuración
 
-Si tienes documentación generada (como Swagger/OpenAPI), indica cómo acceder a ella.
+### 1. Clonar el repositorio
 
-Ejemplo:
-Puedes encontrar la documentación interactiva de la API en `http://localhost:8080/swagger-ui/index.html`.
+```bash
+git clone https://github.com/tu-usuario/vet-backend.git
+cd vet-backend
+```
 
-## Ejecutando las Pruebas
+### 2. Configuración de la base de datos
 
-Instrucciones sobre cómo ejecutar las pruebas automatizadas.
+Edita el archivo application.yml para configurar la conexión a tu base de datos:
 
-Ejemplo con Maven:
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vet_db
+    username: tu_usuario
+    password: tu_contraseña
+```
+
+### 3. Construir el proyecto
+
+Con Maven:
+```bash
+mvn clean install
+```
+
+### 4. Ejecutar la aplicación
+
+```bash
+mvn spring-boot:run
+```
+
+La aplicación estará disponible en `http://localhost:8080`
+
+## 📚 Documentación de la API
+
+La documentación interactiva de la API está disponible a través de Swagger UI:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+### Endpoints principales:
+
+#### Historiales Clínicos
+- `GET /api/historial-clinico`: Listar todos los historiales clínicos
+- `GET /api/historial-clinico/{id}`: Obtener historial por ID
+- `POST /api/historial-clinico`: Crear nuevo historial clínico
+- `PUT /api/historial-clinico/{id}`: Actualizar historial clínico
+- `DELETE /api/historial-clinico/{id}`: Eliminar historial clínico
+
+#### Citas
+- `GET /api/citas`: Listar todas las citas
+- `POST /api/citas`: Crear nueva cita
+- `PUT /api/citas/{id}`: Actualizar cita
+- `DELETE /api/citas/{id}`: Cancelar cita
+
+#### Archivos Clínicos
+- `GET /api/archivos-clinicos`: Listar todos los archivos
+- `GET /api/archivos-clinicos/download/{fileName}`: Descargar archivo
+- `POST /api/archivos-clinicos/upload`: Subir nuevo archivo
+- `DELETE /api/archivos-clinicos/{id}`: Eliminar archivo
+
+## 📂 Estructura del proyecto
+
+```
+vet-backend/
+├── src/
+│   ├── main/
+│   │   ├── java/com/backend/vet/
+│   │   │   ├── config/         # Configuraciones de la aplicación
+│   │   │   ├── controller/     # Controladores REST
+│   │   │   ├── dto/            # Objetos de transferencia de datos
+│   │   │   ├── exception/      # Manejo de excepciones
+│   │   │   ├── model/          # Entidades JPA
+│   │   │   ├── repository/     # Repositorios de datos
+│   │   │   ├── service/        # Servicios de negocio
+│   │   │   ├── util/           # Utilidades generales
+│   │   │   └── VetApplication.java  # Punto de entrada
+│   │   └── resources/
+│   │       ├── application.yml      # Configuración principal
+│   │       └── application-openapi.yml  # Configuración OpenAPI
+│   │
+│   └── test/                   # Pruebas unitarias e integración
+│
+├── pom.xml                     # Configuración de Maven
+└── README.md                   # Este archivo
+```
+
+## 🧪 Pruebas
+
+Para ejecutar las pruebas automatizadas:
+
 ```bash
 mvn test
 ```
-Ejemplo con Gradle:
+
+Para generar un informe de cobertura:
+
 ```bash
-./gradlew test
+mvn verify
 ```
 
-## Contribuyendo
+## 👥 Contribución
 
-Si deseas aceptar contribuciones, explica cómo otros desarrolladores pueden contribuir. Puedes enlazar a un archivo `CONTRIBUTING.md` si tienes directrices más detalladas.
+Las contribuciones son bienvenidas. Para contribuir:
 
-1.  Haz un Fork del proyecto.
-2.  Crea tu Feature Branch (`git checkout -b feature/AmazingFeature`).
-3.  Haz Commit de tus cambios (`git commit -m 'Add some AmazingFeature'`).
-4.  Haz Push a la Branch (`git push origin feature/AmazingFeature`).
-5.  Abre un Pull Request.
+1. Haz un fork del proyecto
+2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
+3. Realiza tus cambios y haz commit (`git commit -m 'Agrega nueva funcionalidad'`)
+4. Sube los cambios a tu fork (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
 
-## Licencia
+Por favor, asegúrate de seguir las buenas prácticas de código y de añadir pruebas para cualquier nueva funcionalidad.
 
-Indica bajo qué licencia se distribuye el proyecto. Por ejemplo:
+## 📜 Licencia
 
-Distribuido bajo la Licencia MIT. Ver `LICENSE` para más información.
+Este proyecto está licenciado bajo la Licencia MIT - consulta el archivo `LICENSE` para más detalles.
 
 ---
 
-Creado por [Tu Nombre/Usuario] - [Enlace a tu perfil o contacto]
+Desarrollado por [Tu Nombre](https://github.com/tu-usuario) | [Contacto](mailto:tu-email@ejemplo.com)
