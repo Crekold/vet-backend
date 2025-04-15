@@ -183,4 +183,4 @@ Este proyecto está licenciado bajo la Licencia MIT - consulta el archivo `LICEN
 
 ---
 
-Desarrollado por [Tu Nombre](https://github.com/tu-usuario) | [Contacto](mailto:tu-email@ejemplo.com)
+Desarrollado por [Crekold](https://github.com/crekold) | [Contacto](mailto:crekoldalt@gmail.com)
