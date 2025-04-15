@@ -179,4 +179,20 @@ public class HistorialClinicoService {
         
         return dto;
     }
+
+    /**
+     * Cuenta el número de pacientes atendidos hoy
+     * @return número de pacientes atendidos
+     */
+    public int countPacientesAtendidos() {
+        return historialClinicoRepository.countPacientesAtendidos();
+    }
+
+    /**
+     * Cuenta el número de vacunas aplicadas hoy
+     * @return número de vacunas aplicadas
+     */
+    public int countVacunasAplicadasHoy() {
+        return historialClinicoRepository.countVacunasAplicadasHoy();
+    }
 }

@@ -157,4 +157,22 @@ public class CitaService {
         
         return dto;
     }
+
+    /**
+     * Cuenta el número de citas programadas para hoy
+     * @return número de citas del día
+     */
+    public int countCitasDelDia() {
+        return citaRepository.countCitasDelDia();
+    }
+
+    /**
+     * Obtiene la lista de próximas citas
+     * @return lista de citas próximas
+     */
+    public List<CitaDto> findProximasCitas() {
+        return citaRepository.findProximasCitas().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 }

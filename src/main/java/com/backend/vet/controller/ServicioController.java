@@ -125,4 +125,17 @@ public class ServicioController {
             @PathVariable Long id) {
         return ResponseUtil.deleteResponse(servicioService.deleteServicio(id));
     }
+
+    /**
+     * Obtiene la lista de servicios veterinarios excluyendo peluquería
+     */
+    @Operation(summary = "Obtener servicios veterinarios", 
+              description = "Proporciona la lista de servicios veterinarios excluyendo peluquería")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de servicios obtenida correctamente")
+    })
+    @GetMapping("/veterinarios")
+    public ResponseEntity<List<ServicioDto>> getServiciosVeterinarios() {
+        return ResponseUtil.ok(servicioService.findAllExcluyendoPeluqueria());
+    }
 }

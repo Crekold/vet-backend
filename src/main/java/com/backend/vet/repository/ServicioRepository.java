@@ -12,4 +12,9 @@ public interface ServicioRepository extends JpaRepository<Servicio, Long> {
     List<Servicio> findByNombreContainingIgnoreCase(String nombre);
     List<Servicio> findByPrecioLessThanEqual(BigDecimal precio);
     List<Servicio> findByPrecioGreaterThanEqual(BigDecimal precio);
+
+    /**
+     * Encuentra servicios cuyo nombre no coincida con el proporcionado
+     */
+    List<Servicio> findByNombreNot(String nombre);
 }

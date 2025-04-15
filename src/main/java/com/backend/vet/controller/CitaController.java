@@ -156,4 +156,16 @@ public class CitaController {
             @PathVariable String estado) {
         return ResponseEntity.ok(citaService.getCitasByEstado(estado));
     }
+
+    @Operation(summary = "Obtener próximas citas", 
+          description = "Proporciona la lista de próximas citas programadas a partir de hoy")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de citas obtenida correctamente"),
+        @ApiResponse(responseCode = "403", description = "No autorizado para acceder a este recurso")
+    })
+    @GetMapping("/proximas")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO') or hasRole('EMPLEADO')")
+    public ResponseEntity<List<CitaDto>> getProximasCitas() {
+        return ResponseUtil.ok(citaService.findProximasCitas());
+    }
 }

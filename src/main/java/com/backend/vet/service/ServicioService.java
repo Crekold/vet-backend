@@ -47,6 +47,16 @@ public class ServicioService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Obtiene todos los servicios veterinarios excluyendo peluquería
+     * @return lista de servicios veterinarios
+     */
+    public List<ServicioDto> findAllExcluyendoPeluqueria() {
+        return servicioRepository.findByNombreNot("Peluquería").stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
     
     @Transactional
     public ServicioDto createServicio(ServicioDto servicioDto) {
