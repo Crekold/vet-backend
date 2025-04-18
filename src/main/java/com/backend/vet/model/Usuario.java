@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime; // Importar LocalDateTime
 
 @Data
 @Entity
@@ -32,4 +33,20 @@ public class Usuario {
     // Campo específico para veterinarios
     @Column(name = "especialidad", length = 100)
     private String especialidad;
+
+    // Nuevos campos para gestión de contraseñas y bloqueo
+    @Column(name = "failed_login_attempts", columnDefinition = "INT DEFAULT 0")
+    private int failedLoginAttempts = 0;
+
+    @Column(name = "lock_expiration_time")
+    private LocalDateTime lockExpirationTime;
+
+    @Column(name = "password_last_changed")
+    private LocalDateTime passwordLastChanged;
+
+    @Column(name = "reset_token", length = 100)
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 }

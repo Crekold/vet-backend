@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern; // Importar Pattern
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,7 +25,11 @@ public class UsuarioDto {
     @Size(max = 100, message = "El correo no debe exceder los 100 caracteres")
     private String correo;
     
+    // Añadir validaciones de complejidad y longitud
     @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$", 
+             message = "La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String contrasena;
     
