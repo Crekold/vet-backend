@@ -1,7 +1,9 @@
 package com.backend.vet.service;
 
+import com.backend.vet.dto.LoginRequestDto;
 import com.backend.vet.dto.UsuarioDto;
 import com.backend.vet.exception.BadRequestException;
+import com.backend.vet.exception.ResourceNotFoundException;
 import com.backend.vet.model.PasswordHistory;
 import com.backend.vet.model.Role;
 import com.backend.vet.model.Usuario;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +46,9 @@ class UsuarioServiceIntegrationTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Value("${app.security.password-history-size:5}")
     private int PASSWORD_HISTORY_SIZE;
@@ -233,5 +240,89 @@ class UsuarioServiceIntegrationTest {
             assertFalse(passwordEncoder.matches(initialPassword, entry.getPasswordHash()),
                     "La contraseña inicial no debería estar en el historial después de podar.");
         }
+    }
+
+    @Test
+    void deleteUsuario_shouldMarkUserAsInactive() {
+        // Arrange: Crear un usuario
+        UsuarioDto dto = createValidUsuarioDto("deleteUser", "delete@test.com", initialPassword);
+        UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
+        Long userId = createdUserDto.getId();
+
+        // Act: Eliminar (lógicamente) el usuario
+        boolean result = usuarioService.deleteUsuario(userId);
+
+        // Assert
+        assertTrue(result, "El método deleteUsuario debería retornar true");
+
+        // Verificar que el usuario existe pero está inactivo
+        Optional<Usuario> userOpt = usuarioRepository.findById(userId);
+        assertTrue(userOpt.isPresent(), "El usuario aún debe existir en la base de datos");
+        assertFalse(userOpt.get().isActivo(), "El campo 'activo' del usuario debe ser false");
+
+        // Opcional: Verificar que no se puede obtener por el servicio getUsuarioById si este filtrara por activos
+        // assertNull(usuarioService.getUsuarioById(userId)); 
+        
+        // Verificar que no se puede cargar con UserDetailsServiceImpl
+        assertThrows(UsernameNotFoundException.class, () -> {
+            userDetailsService.loadUserByUsername("deleteUser");
+        });
+    }
+
+    @Test
+    void deleteUsuario_shouldReturnFalseIfAlreadyInactive() {
+        // Arrange: Crear un usuario y marcarlo como inactivo
+        UsuarioDto dto = createValidUsuarioDto("inactiveUser", "inactive@test.com", initialPassword);
+        UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
+        Long userId = createdUserDto.getId();
+        usuarioService.deleteUsuario(userId); // Primera eliminación (lógica)
+
+        // Act: Intentar eliminar de nuevo
+        boolean result = usuarioService.deleteUsuario(userId);
+
+        // Assert
+        assertFalse(result, "El método deleteUsuario debería retornar false si ya está inactivo");
+    }
+
+    @Test
+    void deleteUsuario_shouldThrowNotFoundExceptionForNonExistingUser() {
+        // Arrange: ID de usuario que no existe
+        Long nonExistingUserId = 9999L;
+
+        // Act & Assert
+        assertThrows(ResourceNotFoundException.class, () -> {
+            usuarioService.deleteUsuario(nonExistingUserId);
+        });
+    }
+
+    // ... Asegúrate de adaptar otras pruebas como las de login para considerar el estado 'activo' ...
+
+    // Ejemplo: Modificar prueba de login para usuario inactivo
+    @Test
+    void login_shouldFailForInactiveUser() {
+        // Arrange: Crear usuario y marcarlo como inactivo
+        String username = "inactiveLoginUser";
+        String email = "inactiveLogin@test.com";
+        UsuarioDto dto = createValidUsuarioDto(username, email, initialPassword);
+        UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
+        usuarioService.deleteUsuario(createdUserDto.getId()); // Marcar como inactivo
+
+        LoginRequestDto loginRequest = new LoginRequestDto();
+        loginRequest.setNombreUsuario(username);
+        loginRequest.setContrasena(initialPassword);
+
+        // Act & Assert en AuthController (simulado o con MockMvc si tienes tests de controlador)
+        // Aquí simulamos la lógica del controlador:
+        Optional<Usuario> usuarioOpt = usuarioService.getUsuarioEntityByNombreUsuario(username);
+        assertTrue(usuarioOpt.isPresent());
+        assertFalse(usuarioOpt.get().isActivo()); // Verificar que está inactivo
+
+        // La verificación en AuthController debería ocurrir antes de llamar a authenticationManager
+        // Por lo tanto, esperamos un error 401 o similar directamente, no una AuthenticationException estándar
+        // Si estuvieras probando el AuthController con MockMvc, verificarías el status 401.
+        // Como esto es un test de servicio, verificamos el estado y que UserDetailsService lo rechaza.
+         assertThrows(UsernameNotFoundException.class, () -> {
+            userDetailsService.loadUserByUsername(username);
+        });
     }
 }

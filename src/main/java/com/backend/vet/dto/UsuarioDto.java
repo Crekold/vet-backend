@@ -39,4 +39,7 @@ public class UsuarioDto {
     // Campo para la especialidad (solo relevante para veterinarios)
     @Size(max = 100, message = "La especialidad no debe exceder los 100 caracteres")
     private String especialidad;
+
+    // Campo para indicar si el usuario está activo
+    private boolean activo;
 }

@@ -174,7 +174,8 @@ api:
               "nombre": "ROLE_ADMIN"
             }
           ],
-          "activo": true
+          "activo": true,  # Añadir campo activo
+          "especialidad": null
         }
         ```
 
@@ -219,11 +220,11 @@ api:
         # Respuestas con error
         1. Si el usuario no existe, retorna **404 - No encontrado**.
     delete:
-      description: Elimina un usuario existente del sistema
+      description: Marca un usuario como inactivo (eliminación lógica)
       notes: |
         # Respuesta exitosa
         - Código: **204 No Content**
-        - No devuelve contenido.
+        - No devuelve contenido. Indica que el usuario ha sido marcado como inactivo.
 
         # Respuestas con error
         1. Si el usuario no existe, retorna **404 - No encontrado**.

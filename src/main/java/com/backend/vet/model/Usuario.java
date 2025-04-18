@@ -36,6 +36,10 @@ public class Usuario {
     @Column(name = "especialidad", length = 100)
     private String especialidad;
 
+    // Campo para borrado lógico
+    @Column(name = "activo", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean activo = true;
+
     // Nuevos campos para gestión de contraseñas y bloqueo
     @Column(name = "failed_login_attempts", columnDefinition = "INT DEFAULT 0")
     private int failedLoginAttempts = 0;

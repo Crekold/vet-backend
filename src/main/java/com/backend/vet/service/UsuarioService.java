@@ -170,11 +170,20 @@ public class UsuarioService {
     
     @Transactional
     public boolean deleteUsuario(Long id) {
-        if (!usuarioRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuario", "id", id);
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
+        
+        if (!usuario.isActivo()) {
+            // Opcional: Podrías devolver false o lanzar una excepción si ya está inactivo
+            return false; // Ya está inactivo, no se hizo ningún cambio real
         }
-        usuarioRepository.deleteById(id);
-        return true;
+        
+        usuario.setActivo(false);
+        // Opcional: Podrías querer limpiar otros campos, como el token de reseteo
+        // usuario.setResetToken(null);
+        // usuario.setResetTokenExpiry(null);
+        usuarioRepository.save(usuario);
+        return true; // Se marcó como inactivo
     }
 
     // --- Nuevos métodos para gestión de contraseñas y bloqueo ---
@@ -320,6 +329,7 @@ public class UsuarioService {
         dto.setNombreUsuario(usuario.getNombreUsuario());
         dto.setCorreo(usuario.getCorreo());
         dto.setEspecialidad(usuario.getEspecialidad());
+        dto.setActivo(usuario.isActivo()); // Mapear el campo activo
         // No establecemos la contraseña
         
         if (usuario.getRol() != null) {

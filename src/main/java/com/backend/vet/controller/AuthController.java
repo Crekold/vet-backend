@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger; // Importar Logger
 import org.slf4j.LoggerFactory; // Importar LoggerFactory
+import org.springframework.security.authentication.DisabledException; // Importar si usas esta excepción en UserDetailsServiceImpl
 
 import jakarta.validation.Valid;
 import java.util.Optional; // Importar Optional
@@ -65,6 +66,16 @@ public class AuthController {
             @Parameter(description = "Credenciales de usuario", required = true)
             @Valid @RequestBody LoginRequestDto loginRequest) {
         
+        // 0. Verificar si la cuenta está activa ANTES de verificar bloqueo o autenticar
+        Optional<Usuario> usuarioOpt = usuarioService.getUsuarioEntityByNombreUsuario(loginRequest.getNombreUsuario());
+        if (usuarioOpt.isPresent() && !usuarioOpt.get().isActivo()) {
+            logger.warn("Intento de login para usuario inactivo: {}", loginRequest.getNombreUsuario());
+            // Puedes devolver 401 Unauthorized o 403 Forbidden, 401 es común para credenciales inválidas/problemas de cuenta
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                   .body("Usuario inactivo o no encontrado."); 
+        }
+        // Si el usuario no existe, la autenticación fallará más adelante de todos modos.
+
         // 1. Verificar si la cuenta está bloqueada ANTES de intentar autenticar
         if (usuarioService.isAccountLocked(loginRequest.getNombreUsuario())) {
              logger.warn("Intento de login fallido para usuario bloqueado: {}", loginRequest.getNombreUsuario());
@@ -89,10 +100,14 @@ public class AuthController {
             
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Obtener el Usuario entity para acceder al rolId
-            Optional<Usuario> usuarioOpt = usuarioService.getUsuarioEntityByNombreUsuario(userDetails.getUsername());
+            // Obtener el Usuario entity para acceder al rolId (ya lo tenemos de la verificación de activo)
+            // Reutilizamos usuarioOpt si existe, si no, lo buscamos de nuevo (aunque no debería pasar si la autenticación fue exitosa)
             Long rolId = usuarioOpt.map(u -> u.getRol() != null ? u.getRol().getId() : null)
-                                   .orElse(null); // Obtener rolId o null si no se encuentra
+                                   .orElseGet(() -> 
+                                       usuarioService.getUsuarioEntityByNombreUsuario(userDetails.getUsername())
+                                           .map(u -> u.getRol() != null ? u.getRol().getId() : null)
+                                           .orElse(null)
+                                   ); 
 
             // 4. Verificar si la contraseña ha expirado
             boolean passwordExpired = usuarioService.isPasswordExpired(userDetails.getUsername());
@@ -112,13 +127,18 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             // 5. Si las credenciales son incorrectas, procesar intento fallido
             logger.warn("Credenciales inválidas para usuario: {}", loginRequest.getNombreUsuario());
-            usuarioService.processLoginFailure(loginRequest.getNombreUsuario());
+            // Solo procesar fallo si el usuario existe y está activo
+            if (usuarioOpt.isPresent() && usuarioOpt.get().isActivo()) {
+                usuarioService.processLoginFailure(loginRequest.getNombreUsuario());
+            }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
-        } catch (AuthenticationException e) {
-            // 6. Otras excepciones de autenticación (podría ser cuenta deshabilitada, etc.)
+        // } catch (DisabledException e) { // Capturar si UserDetailsServiceImpl lanza DisabledException
+        //     logger.warn("Intento de login para usuario deshabilitado: {}", loginRequest.getNombreUsuario());
+        //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario inactivo.");
+        } catch (AuthenticationException e) { // Captura UsernameNotFoundException (incluye inactivos si se lanza desde UserDetailsServiceImpl) y otras
+             // 6. Otras excepciones de autenticación (podría ser cuenta deshabilitada, etc.)
              logger.error("Error de autenticación para usuario {}: {}", loginRequest.getNombreUsuario(), e.getMessage());
-             // Podríamos querer procesar el fallo aquí también dependiendo de la causa
-             // usuarioService.processLoginFailure(loginRequest.getNombreUsuario());
+             // No procesar fallo aquí si el usuario no existe o está inactivo (ya manejado arriba o por la excepción)
              return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error de autenticación: " + e.getMessage());
         }
     }
