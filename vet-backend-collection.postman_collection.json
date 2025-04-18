@@ -1,0 +1,2241 @@
+{
+	"info": {
+		"_postman_id": "f5d8e1a3-b4c5-4d6e-8f9a-1b2c3d4e5f6a",
+		"name": "Vet Backend API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "0"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"try {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData && jsonData.token) {",
+									"        pm.collectionVariables.set(\"authToken\", jsonData.token);",
+									"        console.log(\"Auth token set.\");",
+									"    } else {",
+									"        console.log(\"Token not found in response.\");",
+									"    }",
+									"} catch (e) {",
+									"    console.log(\"Error parsing response or setting token: \" + e);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombreUsuario\": \"adminUser\",\n    \"contrasena\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Inicia sesión y guarda el token JWT en la variable `authToken`."
+					},
+					"response": []
+				},
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombreUsuario\": \"newUser\",\n    \"correo\": \"new@example.com\",\n    \"contrasena\": \"NewPass123!\",\n    \"rolId\": 2, // Ajusta el ID del rol (ej. 2 para VETERINARIO o 3 para EMPLEADO)\n    \"especialidad\": \"Cardiología\" // Opcional, solo para VETERINARIO\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/registro",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"registro"
+							]
+						},
+						"description": "Registra un nuevo usuario. Requiere un `rolId` válido."
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"forgot-password"
+							]
+						},
+						"description": "Solicita un token de restablecimiento de contraseña para el correo proporcionado."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"PASTE_RESET_TOKEN_HERE\",\n    \"newPassword\": \"VerySecureNewPass1!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Restablece la contraseña usando el token recibido por correo."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para autenticación y registro."
+		},
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "Get All Users (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"usuarios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID (Admin or Self)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"1"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Obtiene un usuario por su ID. Reemplaza el '1' con un ID válido."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User (Admin or Self)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombreUsuario\": \"updatedUser\",\n    \"correo\": \"updated@example.com\",\n    \"contrasena\": \"UpdatedPass1?\", // Opcional: solo si se quiere cambiar\n    \"rolId\": 2, // Opcional: solo si se quiere cambiar (Admin)\n    \"especialidad\": \"Cirugía\" // Opcional\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"1"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Actualiza un usuario. Reemplaza el '1' con un ID válido."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"2"
+							],
+							"variable": [
+								{
+									"key": "userIdToDelete",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Elimina un usuario. Reemplaza el '2' con un ID válido (¡Cuidado!)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Veterinarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/usuarios/veterinarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"usuarios",
+								"veterinarios"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de usuarios."
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"ROLE_TEST\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"ROLE_UPDATED_TEST\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/roles/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"4"
+							]
+						},
+						"description": "Actualiza un rol. Reemplaza el '4' con un ID válido."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/roles/4",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"4"
+							]
+						},
+						"description": "Elimina un rol. Reemplaza el '4' con un ID válido (¡Cuidado!)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de roles."
+		},
+		{
+			"name": "Mascotas",
+			"item": [
+				{
+					"name": "Get All Mascotas (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Mascota By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Mascotas By Cliente ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas/cliente/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas",
+								"cliente",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Mascota (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Firulais\",\n    \"especie\": \"Perro\",\n    \"raza\": \"Mestizo\",\n    \"fechaNacimiento\": \"2022-01-15\",\n    \"clienteId\": 1 // ID de un cliente existente\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Mascota (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Firulais Actualizado\",\n    \"especie\": \"Perro\",\n    \"raza\": \"Labrador\",\n    \"fechaNacimiento\": \"2022-01-15\",\n    \"clienteId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Mascota (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/mascotas/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"mascotas",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de mascotas."
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Get All Clientes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cliente By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clientes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Cliente (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Juan\",\n    \"apellido\": \"Perez\",\n    \"direccion\": \"Calle Falsa 123\",\n    \"telefono\": \"1234567890\",\n    \"correo\": \"juan.perez@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clientes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cliente (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Juan Alberto\",\n    \"apellido\": \"Perez Gomez\",\n    \"direccion\": \"Avenida Siempre Viva 742\",\n    \"telefono\": \"0987654321\",\n    \"correo\": \"juan.alberto.perez@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clientes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cliente (Admin, Empleado)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/clientes/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"clientes",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de clientes."
+		},
+		{
+			"name": "Servicios",
+			"item": [
+				{
+					"name": "Get All Servicios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Servicio By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Servicios By Name",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/buscar?nombre=Consulta",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"buscar"
+							],
+							"query": [
+								{
+									"key": "nombre",
+									"value": "Consulta"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Servicios By Max Price",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/precio/hasta/50.00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"precio",
+								"hasta",
+								"50.00"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Servicios By Min Price",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/precio/desde/20.00",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"precio",
+								"desde",
+								"20.00"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Servicio (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Vacunación Antirrábica\",\n    \"descripcion\": \"Aplicación de vacuna contra la rabia\",\n    \"precio\": 25.50\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Servicio (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Vacunación Antirrábica Anual\",\n    \"descripcion\": \"Aplicación anual de vacuna contra la rabia\",\n    \"precio\": 28.00\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Servicio (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Servicios Veterinarios (Excluye Peluquería)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/servicios/veterinarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"servicios",
+								"veterinarios"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de servicios médicos."
+		},
+		{
+			"name": "Citas",
+			"item": [
+				{
+					"name": "Get All Citas (Admin, Veterinario)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cita By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Cita",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaHora\": \"2024-08-15T10:30:00\",\n    \"motivo\": \"Consulta general\",\n    \"estado\": \"Pendiente\",\n    \"mascotaId\": 1, // ID Mascota existente\n    \"clienteId\": 1, // ID Cliente existente\n    \"veterinarioId\": 2 // ID Veterinario existente\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/citas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cita",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaHora\": \"2024-08-15T11:00:00\",\n    \"motivo\": \"Consulta de seguimiento\",\n    \"estado\": \"Atendida\",\n    \"mascotaId\": 1,\n    \"clienteId\": 1,\n    \"veterinarioId\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cita (Admin, Veterinario)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citas By Mascota ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/mascota/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"mascota",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citas By Cliente ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/cliente/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"cliente",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citas By Veterinario ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/veterinario/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"veterinario",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citas By Date Range",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/fecha?inicio=2024-08-01&fin=2024-08-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"fecha"
+							],
+							"query": [
+								{
+									"key": "inicio",
+									"value": "2024-08-01"
+								},
+								{
+									"key": "fin",
+									"value": "2024-08-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Citas By Estado",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/estado/Pendiente",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"estado",
+								"Pendiente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Proximas Citas (Admin, Vet, Emp)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/citas/proximas",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"citas",
+								"proximas"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de citas."
+		},
+		{
+			"name": "Historial Clínico",
+			"item": [
+				{
+					"name": "Get All Historial Clinico (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial Clinico By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Historial Clinico (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaConsulta\": \"2024-08-15T11:05:00\",\n    \"diagnostico\": \"Saludable\",\n    \"tratamiento\": \"Ninguno\",\n    \"observaciones\": \"Control anual\",\n    \"mascotaId\": 1,\n    \"veterinarioId\": 2,\n    \"citaId\": 1 // Opcional: ID de la cita relacionada\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Historial Clinico (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaConsulta\": \"2024-08-15T11:05:00\",\n    \"diagnostico\": \"Leve alergia\",\n    \"tratamiento\": \"Antihistamínico\",\n    \"observaciones\": \"Presenta picazón leve\",\n    \"mascotaId\": 1,\n    \"veterinarioId\": 2,\n    \"citaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Historial Clinico (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial By Mascota ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/mascota/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"mascota",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial By Cliente ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/cliente/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"cliente",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial By Veterinario ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/veterinario/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"veterinario",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial By Cita ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/cita/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"cita",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Historial By Date Range (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/historial-clinico/fecha?inicio=2024-08-01T00:00:00&fin=2024-08-31T23:59:59",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"historial-clinico",
+								"fecha"
+							],
+							"query": [
+								{
+									"key": "inicio",
+									"value": "2024-08-01T00:00:00"
+								},
+								{
+									"key": "fin",
+									"value": "2024-08-31T23:59:59"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión del historial clínico."
+		},
+		{
+			"name": "Archivos Clínicos",
+			"item": [
+				{
+					"name": "Get All Archivos Clinicos (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archivo Clinico By ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Archivo Clinico (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "historialClinicoId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"upload"
+							]
+						},
+						"description": "Sube un archivo asociado a un historial clínico. Selecciona un archivo en la pestaña Body > form-data."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Archivo Clinico Metadata (Admin, Vet)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"descripcion\": \"Radiografía actualizada\"\n    // No se puede cambiar nombreArchivo, tipoMime, rutaArchivo o historialClinicoId aquí\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"1"
+							]
+						},
+						"description": "Actualiza la descripción de un archivo clínico existente."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Archivo Clinico (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Archivo Clinico",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/download/uuid_example.jpg",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"download",
+								"uuid_example.jpg"
+							]
+						},
+						"description": "Descarga un archivo por su nombre almacenado (incluyendo UUID si existe). Reemplaza 'uuid_example.jpg' con un nombre de archivo válido."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archivos By Historial ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/historial/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"historial",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archivos By Mascota ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/mascota/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"mascota",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Archivos By Name",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/buscar?nombre=radiografia",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"buscar"
+							],
+							"query": [
+								{
+									"key": "nombre",
+									"value": "radiografia"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Archivos By MIME Type",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/archivos-clinicos/tipo/image/jpeg",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"archivos-clinicos",
+								"tipo",
+								"image/jpeg"
+							]
+						},
+						"description": "Obtiene archivos por tipo MIME. Reemplaza 'image/jpeg' con el tipo deseado (ej. application/pdf)."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para la gestión de archivos adjuntos al historial."
+		},
+		{
+			"name": "Estadísticas",
+			"item": [
+				{
+					"name": "Get Dashboard Stats (Admin, Vet, Emp)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/stats/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"stats",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para obtener estadísticas."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "Se establece automáticamente después de un login exitoso."
+		}
+	]
+}

@@ -31,6 +31,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
     public ResponseEntity<List<ClienteDto>> getAllClientes() {
         return ResponseUtil.ok(clienteService.getAllClientes());
     }
@@ -41,6 +42,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
     public ResponseEntity<ClienteDto> getClienteById(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id) {

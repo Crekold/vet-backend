@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime; // Importar LocalDateTime
+import java.util.ArrayList; // Importar ArrayList
+import java.util.List; // Importar List
 
 @Data
 @Entity
@@ -49,4 +51,8 @@ public class Usuario {
 
     @Column(name = "reset_token_expiry")
     private LocalDateTime resetTokenExpiry;
+
+    // Nueva relación con el historial de contraseñas
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PasswordHistory> passwordHistory = new ArrayList<>();
 }

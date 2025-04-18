@@ -32,7 +32,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<HistorialClinicoDto>> getAllHistorialClinico() {
         return ResponseUtil.ok(historialClinicoService.getAllHistorialClinico());
     }
@@ -44,6 +44,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<HistorialClinicoDto> getHistorialClinicoById(
             @Parameter(description = "ID del registro de historial clínico", required = true)
             @PathVariable Long id) {
@@ -107,6 +108,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/mascota/{mascotaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByMascotaId(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long mascotaId) {
@@ -119,6 +121,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByClienteId(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long clienteId) {
@@ -131,6 +134,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinario/{veterinarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByVeterinarioId(
             @Parameter(description = "ID del veterinario", required = true)
             @PathVariable Long veterinarioId) {
@@ -143,6 +147,7 @@ public class HistorialClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cita/{citaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<HistorialClinicoDto>> getHistorialClinicoByCitaId(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {

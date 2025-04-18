@@ -32,6 +32,13 @@ app:
   jwt:
     secret: claveSecretaSuperseguraParaJWTQueDebeSerMuyLargaParaSerSegura
     expiration-ms: 86400000
+  # Nueva sección para configuración de seguridad
+  security:
+    max-failed-attempts: 3          # Número máximo de intentos fallidos antes de bloquear
+    lock-duration-minutes: 15       # Duración del bloqueo en minutos
+    password-expiry-days: 90        # Duración de la validez de la contraseña en días
+    reset-token-expiry-minutes: 60  # Duración de la validez del token de restablecimiento en minutos
+    password-history-size: 5        # Número de contraseñas antiguas a recordar para evitar reutilización
 
 # Configuración de logging
 logging:

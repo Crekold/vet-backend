@@ -30,7 +30,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')") // Solo Admin y Empleado pueden ver TODAS las mascotas
     public ResponseEntity<List<MascotaDto>> getAllMascotas() {
         return ResponseUtil.ok(mascotaService.getAllMascotas());
     }
@@ -41,6 +41,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
     public ResponseEntity<MascotaDto> getMascotaById(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long id) {
@@ -53,6 +54,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
     public ResponseEntity<List<MascotaDto>> getMascotasByClienteId(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long clienteId) {

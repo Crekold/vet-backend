@@ -44,6 +44,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<CitaDto> getCitaById(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long id) {
@@ -58,6 +59,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<CitaDto> createCita(
             @Parameter(description = "Datos de la cita", required = true)
             @Valid @RequestBody CitaDto citaDto) {
@@ -72,6 +74,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<CitaDto> updateCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long id, 
@@ -101,6 +104,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/mascota/{mascotaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<List<CitaDto>> getCitasByMascotaId(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long mascotaId) {
@@ -113,6 +117,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<List<CitaDto>> getCitasByClienteId(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long clienteId) {
@@ -125,6 +130,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinario/{veterinarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<List<CitaDto>> getCitasByVeterinarioId(
             @Parameter(description = "ID del veterinario", required = true)
             @PathVariable Long veterinarioId) {
@@ -137,6 +143,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/fecha")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<List<CitaDto>> getCitasByFechaRango(
             @Parameter(description = "Fecha de inicio", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
@@ -151,6 +158,7 @@ public class CitaController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/estado/{estado}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
     public ResponseEntity<List<CitaDto>> getCitasByEstado(
             @Parameter(description = "Estado de la cita (Pendiente, Atendida, Cancelada)", required = true)
             @PathVariable String estado) {

@@ -20,4 +20,5 @@ public class LoginResponseDto {
     private String nombreUsuario;
     private Collection<?> roles;
     private Boolean passwordChangeRequired; // Nuevo campo (Boolean para permitir null)
+    private Long rolId; // Añadir rolId
 }

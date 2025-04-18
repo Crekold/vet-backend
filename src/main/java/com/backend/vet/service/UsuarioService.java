@@ -4,12 +4,16 @@ import com.backend.vet.dto.UsuarioDto;
 import com.backend.vet.exception.BadRequestException;
 import com.backend.vet.exception.ResourceNotFoundException;
 import com.backend.vet.exception.TokenExpiredException; // Necesita ser creada
+import com.backend.vet.model.PasswordHistory; // Importar PasswordHistory
 import com.backend.vet.model.Role;
 import com.backend.vet.model.Usuario;
+import com.backend.vet.repository.PasswordHistoryRepository; // Importar PasswordHistoryRepository
 import com.backend.vet.repository.RoleRepository;
 import com.backend.vet.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value; // Importar Value
+import org.springframework.data.domain.PageRequest; // Importar PageRequest
+import org.springframework.data.domain.Pageable; // Importar Pageable
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +42,10 @@ public class UsuarioService {
     @Value("${app.security.reset-token-expiry-minutes:60}")
     private long RESET_TOKEN_EXPIRY_MINUTES;
 
+    // Nueva propiedad para el tamaño del historial
+    @Value("${app.security.password-history-size:5}")
+    private int PASSWORD_HISTORY_SIZE;
+
     // Regex para validar complejidad (debe coincidir con el DTO)
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
@@ -50,6 +58,10 @@ public class UsuarioService {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    // Inyectar el nuevo repositorio
+    @Autowired
+    private PasswordHistoryRepository passwordHistoryRepository;
 
     private final SecureRandom secureRandom = new SecureRandom(); // Para generar tokens
     private final Base64.Encoder base64Encoder = Base64.getUrlEncoder(); // Para generar tokens
@@ -101,7 +113,12 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role", "id", usuarioDto.getRolId()));
         usuario.setRol(role);
         
+        // Guardar usuario primero para obtener ID
         Usuario savedUsuario = usuarioRepository.save(usuario);
+
+        // Añadir la contraseña inicial al historial
+        addPasswordToHistory(savedUsuario, savedUsuario.getContrasenaHash());
+        
         return convertToDto(savedUsuario);
     }
     
@@ -127,9 +144,18 @@ public class UsuarioService {
         usuario.setEspecialidad(usuarioDto.getEspecialidad());
             
         if (usuarioDto.getContrasena() != null && !usuarioDto.getContrasena().isEmpty()) {
-            validatePasswordComplexity(usuarioDto.getContrasena()); // Validar nueva contraseña
-            usuario.setContrasenaHash(passwordEncoder.encode(usuarioDto.getContrasena()));
+            // Validar complejidad Y historial ANTES de codificar y guardar
+            validatePasswordComplexityAndHistory(usuario, usuarioDto.getContrasena());
+
+            String newPasswordHash = passwordEncoder.encode(usuarioDto.getContrasena());
+            usuario.setContrasenaHash(newPasswordHash);
             usuario.setPasswordLastChanged(LocalDateTime.now()); // Actualizar fecha de cambio
+
+            // Guardar usuario ANTES de añadir al historial
+            Usuario updatedUsuario = usuarioRepository.save(usuario);
+            // Añadir la nueva contraseña al historial DESPUÉS de guardar el usuario
+            addPasswordToHistory(updatedUsuario, newPasswordHash);
+            return convertToDto(updatedUsuario); // Devolver DTO del usuario actualizado
         }
             
         if (usuarioDto.getRolId() != null && (usuario.getRol() == null || !usuario.getRol().getId().equals(usuarioDto.getRolId()))) {
@@ -225,22 +251,67 @@ public class UsuarioService {
             throw new TokenExpiredException("El token de restablecimiento ha expirado");
         }
 
-        validatePasswordComplexity(newPassword); // Validar la nueva contraseña
+        // Validar complejidad Y historial ANTES de codificar y guardar
+        validatePasswordComplexityAndHistory(user, newPassword);
 
-        user.setContrasenaHash(passwordEncoder.encode(newPassword));
+        String newPasswordHash = passwordEncoder.encode(newPassword);
+        user.setContrasenaHash(newPasswordHash);
         user.setPasswordLastChanged(LocalDateTime.now());
         user.setResetToken(null); // Limpiar token después de usarlo
         user.setResetTokenExpiry(null);
         user.setFailedLoginAttempts(0); // Resetear intentos fallidos
         user.setLockExpirationTime(null); // Desbloquear cuenta si estaba bloqueada
-        usuarioRepository.save(user);
+
+        // Guardar usuario ANTES de añadir al historial
+        Usuario updatedUser = usuarioRepository.save(user);
+        // Añadir la nueva contraseña al historial DESPUÉS de guardar el usuario
+        addPasswordToHistory(updatedUser, newPasswordHash);
     }
 
+    // Método refactorizado para validar complejidad
     private void validatePasswordComplexity(String password) {
         if (password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
             throw new BadRequestException("La contraseña no cumple con los requisitos de complejidad: mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&).");
         }
-        // Aquí se podría añadir la validación contra el historial de contraseñas si se implementa
+    }
+
+    // Nuevo método para validar complejidad E historial
+    private void validatePasswordComplexityAndHistory(Usuario usuario, String newPassword) {
+        // 1. Validar complejidad básica
+        validatePasswordComplexity(newPassword);
+
+        // 2. Validar contra historial si el tamaño es mayor que 0
+        if (PASSWORD_HISTORY_SIZE > 0) {
+            Pageable topN = PageRequest.of(0, PASSWORD_HISTORY_SIZE);
+            List<PasswordHistory> recentHistory = passwordHistoryRepository.findByUsuarioOrderByCreationDateDesc(usuario, topN);
+
+            for (PasswordHistory historyEntry : recentHistory) {
+                if (passwordEncoder.matches(newPassword, historyEntry.getPasswordHash())) {
+                    throw new BadRequestException(String.format(
+                        "La nueva contraseña no puede ser igual a una de las últimas %d contraseñas utilizadas.",
+                        PASSWORD_HISTORY_SIZE));
+                }
+            }
+        }
+    }
+
+    // Nuevo método para añadir al historial y podar si es necesario
+    private void addPasswordToHistory(Usuario usuario, String passwordHash) {
+        PasswordHistory historyEntry = new PasswordHistory(usuario, passwordHash);
+        passwordHistoryRepository.save(historyEntry);
+
+        // Podar historial si excede el tamaño configurado
+        if (PASSWORD_HISTORY_SIZE > 0) {
+            long historyCount = passwordHistoryRepository.countByUsuario(usuario);
+            if (historyCount > PASSWORD_HISTORY_SIZE) {
+                // Encontrar y eliminar las entradas más antiguas hasta que queden PASSWORD_HISTORY_SIZE
+                List<PasswordHistory> fullHistoryAsc = passwordHistoryRepository.findByUsuarioOrderByCreationDateAsc(usuario);
+                int entriesToDelete = (int) (historyCount - PASSWORD_HISTORY_SIZE);
+                for (int i = 0; i < entriesToDelete && i < fullHistoryAsc.size(); i++) {
+                    passwordHistoryRepository.delete(fullHistoryAsc.get(i));
+                }
+            }
+        }
     }
     
     private UsuarioDto convertToDto(Usuario usuario) {

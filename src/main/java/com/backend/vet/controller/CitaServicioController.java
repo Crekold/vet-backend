@@ -31,6 +31,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cita/{citaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
     public ResponseEntity<List<CitaServicioDto>> getServiciosByCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {

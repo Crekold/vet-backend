@@ -91,6 +91,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinarios")
+    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado obtener la lista de veterinarios
     public ResponseEntity<List<UsuarioDto>> getAllVeterinarios() {
         List<UsuarioDto> usuarios = usuarioService.getAllUsuarios().stream()
                 .filter(u -> "VETERINARIO".equalsIgnoreCase(u.getRolNombre()))

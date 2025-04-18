@@ -47,6 +47,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<ArchivoClinicoDto> getArchivoClinicoById(
             @Parameter(description = "ID del archivo clínico", required = true)
             @PathVariable Long id) {
@@ -113,6 +114,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/download/{fileName:.+}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<Resource> downloadFile(
             @Parameter(description = "Nombre del archivo", required = true)
             @PathVariable String fileName) {
@@ -144,6 +146,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/historial/{historialClinicoId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<ArchivoClinicoDto>> getArchivosByHistorialClinicoId(
             @Parameter(description = "ID del historial clínico", required = true)
             @PathVariable Long historialClinicoId) {
@@ -156,6 +159,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/mascota/{mascotaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<ArchivoClinicoDto>> getArchivosByMascotaId(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long mascotaId) {
@@ -168,6 +172,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<ArchivoClinicoDto>> getArchivosByNombre(
             @Parameter(description = "Texto a buscar en el nombre de archivo", required = true)
             @RequestParam String nombre) {
@@ -180,6 +185,7 @@ public class ArchivoClinicoController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/tipo/{tipoMime}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO')")
     public ResponseEntity<List<ArchivoClinicoDto>> getArchivosByTipoMime(
             @Parameter(description = "Tipo MIME del archivo", required = true)
             @PathVariable String tipoMime) {

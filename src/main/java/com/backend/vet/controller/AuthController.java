@@ -4,6 +4,7 @@ import com.backend.vet.dto.*; // Importar nuevos DTOs
 import com.backend.vet.exception.BadRequestException;
 import com.backend.vet.exception.ResourceNotFoundException;
 import com.backend.vet.exception.TokenExpiredException;
+import com.backend.vet.model.Usuario; // Importar Usuario
 import com.backend.vet.security.jwt.JwtUtils;
 import com.backend.vet.service.UsuarioService;
 import com.backend.vet.util.ResponseUtil;
@@ -33,6 +34,7 @@ import org.slf4j.Logger; // Importar Logger
 import org.slf4j.LoggerFactory; // Importar LoggerFactory
 
 import jakarta.validation.Valid;
+import java.util.Optional; // Importar Optional
 
 @RestController
 @RequestMapping("/api/auth")
@@ -87,6 +89,11 @@ public class AuthController {
             
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+            // Obtener el Usuario entity para acceder al rolId
+            Optional<Usuario> usuarioOpt = usuarioService.getUsuarioEntityByNombreUsuario(userDetails.getUsername());
+            Long rolId = usuarioOpt.map(u -> u.getRol() != null ? u.getRol().getId() : null)
+                                   .orElse(null); // Obtener rolId o null si no se encuentra
+
             // 4. Verificar si la contraseña ha expirado
             boolean passwordExpired = usuarioService.isPasswordExpired(userDetails.getUsername());
             
@@ -97,6 +104,7 @@ public class AuthController {
                     .nombreUsuario(userDetails.getUsername())
                     .roles(userDetails.getAuthorities())
                     .passwordChangeRequired(passwordExpired) // Añadir estado de expiración
+                    .rolId(rolId) // Añadir rolId a la respuesta
                     .build();
             
             return ResponseUtil.ok(responseDto);
