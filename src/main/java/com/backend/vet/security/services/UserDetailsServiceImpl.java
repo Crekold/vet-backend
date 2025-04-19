@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -34,8 +36,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return User.builder()
                 .username(usuario.getNombreUsuario())
                 .password(usuario.getContrasenaHash())
-                // .disabled(!usuario.isActivo()) // Alternativa si no lanzas excepción arriba
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre())))
+                .authorities(
+                    // Rol y permisos como authorities
+                    Stream.concat(
+                        Stream.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre())),
+                        usuario.getRol().getPermissions().stream()
+                            .map(p -> new SimpleGrantedAuthority(p.getName()))
+                    ).collect(Collectors.toList())
+                )
                 .build();
     }
 }

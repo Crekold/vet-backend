@@ -1,5 +1,6 @@
 package com.backend.vet.controller;
 
+import com.backend.vet.dto.PermissionDto;
 import com.backend.vet.dto.RoleDto;
 import com.backend.vet.service.RoleService;
 import com.backend.vet.util.ResponseUtil;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/roles")
@@ -93,5 +95,37 @@ public class RoleController {
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id) {
         return ResponseUtil.deleteResponse(roleService.deleteRole(id));
+    }
+
+    @Operation(summary = "Obtener permisos de un rol", description = "Listar permisos asignados al rol")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
+    })
+    @GetMapping("/{id}/permissions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PermissionDto>> getPermissionsByRole(
+            @Parameter(description = "ID del rol", required = true)
+            @PathVariable Long id) {
+        List<PermissionDto> perms = roleService.getPermissionsByRole(id);
+        return ResponseUtil.ok(perms);
+    }
+
+    @Operation(summary = "Actualizar permisos de un rol", description = "Asignar permisos al rol")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
+        @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
+        @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
+    })
+    @PutMapping("/{id}/permissions")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<PermissionDto>> updatePermissions(
+            @Parameter(description = "ID del rol", required = true)
+            @PathVariable Long id,
+            @RequestBody Set<Long> permissionIds) {
+        List<PermissionDto> updated = roleService.updatePermissions(id, permissionIds);
+        return ResponseUtil.ok(updated);
     }
 }

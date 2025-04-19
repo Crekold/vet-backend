@@ -1,9 +1,12 @@
 package com.backend.vet.service;
 
+import com.backend.vet.dto.PermissionDto;
 import com.backend.vet.dto.RoleDto;
 import com.backend.vet.exception.BadRequestException;
 import com.backend.vet.exception.ResourceNotFoundException;
+import com.backend.vet.model.Permission;
 import com.backend.vet.model.Role;
+import com.backend.vet.repository.PermissionRepository;
 import com.backend.vet.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +22,9 @@ public class RoleService {
     
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PermissionRepository permissionRepository;
     
     public List<RoleDto> getAllRoles() {
         return roleRepository.findAll().stream()
@@ -74,6 +81,29 @@ public class RoleService {
         }
         roleRepository.deleteById(id);
         return true;
+    }
+
+    public List<PermissionDto> getPermissionsByRole(Long roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
+        return role.getPermissions().stream()
+                .map(p -> new PermissionDto(p.getId(), p.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<PermissionDto> updatePermissions(Long roleId, Set<Long> permissionIds) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "id", roleId));
+        Set<Permission> perms = permissionIds.stream()
+                .map(id -> permissionRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Permission", "id", id)))
+                .collect(Collectors.toSet());
+        role.setPermissions(perms);
+        Role saved = roleRepository.save(role);
+        return saved.getPermissions().stream()
+                .map(p -> new PermissionDto(p.getId(), p.getName()))
+                .collect(Collectors.toList());
     }
     
     private RoleDto convertToDto(Role role) {
