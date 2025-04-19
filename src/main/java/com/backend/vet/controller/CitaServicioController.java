@@ -31,7 +31,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/cita/{citaId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_READ')")
     public ResponseEntity<List<CitaServicioDto>> getServiciosByCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {
@@ -45,7 +45,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/servicio/{servicioId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_READ')")
     public ResponseEntity<List<CitaServicioDto>> getCitasByServicio(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long servicioId) {
@@ -60,7 +60,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_CREATE')")
     public ResponseEntity<CitaServicioDto> addServicioToCita(
             @Parameter(description = "Datos del servicio a agregar", required = true)
             @Valid @RequestBody CitaServicioDto citaServicioDto) {
@@ -75,7 +75,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_UPDATE')")
     public ResponseEntity<CitaServicioDto> updateCitaServicio(
             @Parameter(description = "Datos actualizados del servicio", required = true)
             @Valid @RequestBody CitaServicioDto citaServicioDto) {
@@ -89,7 +89,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/cita/{citaId}/servicio/{servicioId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_DELETE')")
     public ResponseEntity<Void> removeServicioFromCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId,
@@ -106,7 +106,7 @@ public class CitaServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/cita/{citaId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('VETERINARIO')")
+    @PreAuthorize("hasAuthority('CITA_SERVICIO_DELETE')")
     public ResponseEntity<Void> removeAllServiciosFromCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {

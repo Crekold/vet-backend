@@ -30,7 +30,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')") // Solo Admin y Empleado pueden ver TODAS las mascotas
+    @PreAuthorize("hasAuthority('MASCOTA_READ')")
     public ResponseEntity<List<MascotaDto>> getAllMascotas() {
         return ResponseUtil.ok(mascotaService.getAllMascotas());
     }
@@ -41,7 +41,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
+    @PreAuthorize("hasAuthority('MASCOTA_READ')")
     public ResponseEntity<MascotaDto> getMascotaById(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long id) {
@@ -54,7 +54,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/cliente/{clienteId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
+    @PreAuthorize("hasAuthority('MASCOTA_READ')")
     public ResponseEntity<List<MascotaDto>> getMascotasByClienteId(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long clienteId) {
@@ -67,7 +67,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}")
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('MASCOTA_CREATE')")
     public ResponseEntity<MascotaDto> createMascota(
             @Parameter(description = "Datos de la nueva mascota", required = true)
             @Valid @RequestBody MascotaDto mascotaDto) {
@@ -81,7 +81,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('MASCOTA_UPDATE')")
     public ResponseEntity<MascotaDto> updateMascota(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long id, 
@@ -97,7 +97,7 @@ public class MascotaController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('MASCOTA_DELETE')")
     public ResponseEntity<Void> deleteMascota(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long id) {

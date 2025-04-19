@@ -42,9 +42,8 @@ public class DataInitializer implements CommandLineRunner {
         );
         List<Permission> allPerms = new ArrayList<>();
         for (String name : allPermNames) {
-            Permission perm = permissionRepository.findById(name.hashCode() & Long.MAX_VALUE)
+            Permission perm = permissionRepository.findByName(name)
                 .orElseGet(() -> permissionRepository.save(new Permission(name)));
-            // Note: using hashCode for ID placeholder; IDs auto-generated on save
             allPerms.add(perm);
         }
 

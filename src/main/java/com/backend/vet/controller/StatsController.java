@@ -30,7 +30,7 @@ public class StatsController {
     @Operation(summary = "Obtener estadísticas del dashboard", 
               description = "Proporciona estadísticas como pacientes atendidos, citas del día y vacunas aplicadas")
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('STATS_READ')")
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("pacientesAtendidos", historialClinicoService.countPacientesAtendidos());

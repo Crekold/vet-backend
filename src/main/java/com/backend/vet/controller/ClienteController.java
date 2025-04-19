@@ -31,7 +31,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
+    @PreAuthorize("hasAuthority('CLIENTE_READ')")
     public ResponseEntity<List<ClienteDto>> getAllClientes() {
         return ResponseUtil.ok(clienteService.getAllClientes());
     }
@@ -42,7 +42,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'VETERINARIO', 'EMPLEADO')") // Permitir lectura a los tres roles
+    @PreAuthorize("hasAuthority('CLIENTE_READ')")
     public ResponseEntity<ClienteDto> getClienteById(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id) {
@@ -56,7 +56,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}")
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('CLIENTE_CREATE')")
     public ResponseEntity<ClienteDto> createCliente(
             @Parameter(description = "Datos del nuevo cliente", required = true)
             @Valid @RequestBody ClienteDto clienteDto) {
@@ -70,7 +70,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('CLIENTE_UPDATE')")
     public ResponseEntity<ClienteDto> updateCliente(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id, 
@@ -86,7 +86,7 @@ public class ClienteController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLEADO')")
+    @PreAuthorize("hasAuthority('CLIENTE_DELETE')")
     public ResponseEntity<Void> deleteCliente(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id) {

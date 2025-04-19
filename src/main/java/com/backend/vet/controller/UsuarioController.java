@@ -33,7 +33,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('USUARIO_READ')")
     public ResponseEntity<List<UsuarioDto>> getAllUsuarios() {
         return ResponseUtil.ok(usuarioService.getAllUsuarios());
     }
@@ -45,7 +45,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @securityService.isCurrentUser(#id)")
+    @PreAuthorize("hasAuthority('USUARIO_READ') or @securityService.isCurrentUser(#id)")
     public ResponseEntity<UsuarioDto> getUsuarioById(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id) {
@@ -61,7 +61,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @securityService.isCurrentUser(#id)")
+    @PreAuthorize("hasAuthority('USUARIO_UPDATE') or @securityService.isCurrentUser(#id)")
     public ResponseEntity<UsuarioDto> updateUsuario(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id, 
@@ -78,7 +78,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('USUARIO_DELETE')")
     public ResponseEntity<Void> deleteUsuario(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id) {
@@ -91,7 +91,7 @@ public class UsuarioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/veterinarios")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado obtener la lista de veterinarios
+    @PreAuthorize("hasAuthority('USUARIO_READ')")
     public ResponseEntity<List<UsuarioDto>> getAllVeterinarios() {
         List<UsuarioDto> usuarios = usuarioService.getAllUsuarios().stream()
                 .filter(u -> "VETERINARIO".equalsIgnoreCase(u.getRolNombre()))

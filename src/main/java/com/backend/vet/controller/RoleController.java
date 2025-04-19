@@ -34,6 +34,7 @@ public class RoleController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_READ')")
     public ResponseEntity<List<RoleDto>> getAllRoles() {
         return ResponseUtil.ok(roleService.getAllRoles());
     }
@@ -44,6 +45,7 @@ public class RoleController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_READ')")
     public ResponseEntity<RoleDto> getRoleById(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id) {
@@ -58,7 +60,7 @@ public class RoleController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_CREATE')")
     public ResponseEntity<RoleDto> createRole(
             @Parameter(description = "Datos del nuevo rol", required = true)
             @Valid @RequestBody RoleDto roleDto) {
@@ -73,7 +75,7 @@ public class RoleController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public ResponseEntity<RoleDto> updateRole(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id, 
@@ -90,7 +92,7 @@ public class RoleController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_DELETE')")
     public ResponseEntity<Void> deleteRole(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id) {
@@ -104,7 +106,7 @@ public class RoleController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping("/{id}/permissions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('PERMISSION_READ')")
     public ResponseEntity<List<PermissionDto>> getPermissionsByRole(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id) {
@@ -120,7 +122,7 @@ public class RoleController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}/permissions")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('PERMISSION_UPDATE')")
     public ResponseEntity<List<PermissionDto>> updatePermissions(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id,

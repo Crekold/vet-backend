@@ -30,7 +30,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado leer servicios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getAllServicios() {
         return ResponseUtil.ok(servicioService.getAllServicios());
     }
@@ -41,7 +41,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "404", description = "${api.response-codes.not-found.description}")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado leer servicios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<ServicioDto> getServicioById(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long id) {
@@ -54,7 +54,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/buscar")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado buscar servicios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getServiciosByNombre(
             @Parameter(description = "Texto a buscar en el nombre", required = true)
             @RequestParam String nombre) {
@@ -66,7 +66,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/precio/hasta/{precio}")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado buscar servicios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMenorIgual(
             @Parameter(description = "Precio máximo", required = true)
             @PathVariable BigDecimal precio) {
@@ -78,7 +78,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
     })
     @GetMapping("/precio/desde/{precio}")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado buscar servicios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMayorIgual(
             @Parameter(description = "Precio mínimo", required = true)
             @PathVariable BigDecimal precio) {
@@ -92,7 +92,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('SERVICIO_CREATE')")
     public ResponseEntity<ServicioDto> createServicio(
             @Parameter(description = "Datos del servicio", required = true)
             @Valid @RequestBody ServicioDto servicioDto) {
@@ -107,7 +107,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('SERVICIO_UPDATE')")
     public ResponseEntity<ServicioDto> updateServicio(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long id, 
@@ -124,7 +124,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('SERVICIO_DELETE')")
     public ResponseEntity<Void> deleteServicio(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long id) {
@@ -140,7 +140,7 @@ public class ServicioController {
         @ApiResponse(responseCode = "200", description = "Lista de servicios obtenida correctamente")
     })
     @GetMapping("/veterinarios")
-    @PreAuthorize("isAuthenticated()") // Permitir a cualquier usuario autenticado leer servicios veterinarios
+    @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getServiciosVeterinarios() {
         return ResponseUtil.ok(servicioService.findAllExcluyendoPeluqueria());
     }
