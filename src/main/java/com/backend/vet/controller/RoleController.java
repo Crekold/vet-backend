@@ -6,13 +6,10 @@ import com.backend.vet.service.RoleService;
 import com.backend.vet.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -114,7 +111,7 @@ public class RoleController {
         return ResponseUtil.ok(perms);
     }
 
-    @Operation(summary = "Actualizar permisos de un rol", description = "Asignar permisos al rol")
+    @Operation(summary = "Actualizar todos los permisos de un rol", description = "Reemplaza todos los permisos existentes de un rol con el conjunto proporcionado.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
         @ApiResponse(responseCode = "400", description = "${api.response-codes.bad-request.description}"),
@@ -126,8 +123,40 @@ public class RoleController {
     public ResponseEntity<List<PermissionDto>> updatePermissions(
             @Parameter(description = "ID del rol", required = true)
             @PathVariable Long id,
+            @Parameter(description = "Conjunto de IDs de los permisos a asignar", required = true)
             @RequestBody Set<Long> permissionIds) {
         List<PermissionDto> updated = roleService.updatePermissions(id, permissionIds);
         return ResponseUtil.ok(updated);
+    }
+
+    @Operation(summary = "Asignar un permiso específico a un rol", description = "Añade un permiso individual a un rol si aún no está asignado.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Permiso asignado correctamente. Devuelve la lista actualizada de permisos."),
+        @ApiResponse(responseCode = "404", description = "Rol o permiso no encontrado."),
+        @ApiResponse(responseCode = "400", description = "El permiso ya estaba asignado o error en la solicitud."),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
+    })
+    @PostMapping("/{roleId}/permissions/{permissionId}")
+    @PreAuthorize("hasAuthority('PERMISSION_UPDATE')")
+    public ResponseEntity<List<PermissionDto>> assignPermissionToRole(
+            @Parameter(description = "ID del rol", required = true) @PathVariable Long roleId,
+            @Parameter(description = "ID del permiso a asignar", required = true) @PathVariable Long permissionId) {
+        List<PermissionDto> updatedPermissions = roleService.assignPermissionToRole(roleId, permissionId);
+        return ResponseUtil.ok(updatedPermissions);
+    }
+
+    @Operation(summary = "Revocar un permiso específico de un rol", description = "Elimina un permiso individual de un rol.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Permiso revocado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Rol o permiso no encontrado, o el permiso no estaba asignado al rol."),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
+    })
+    @DeleteMapping("/{roleId}/permissions/{permissionId}")
+    @PreAuthorize("hasAuthority('PERMISSION_UPDATE')")
+    public ResponseEntity<Void> removePermissionFromRole(
+            @Parameter(description = "ID del rol", required = true) @PathVariable Long roleId,
+            @Parameter(description = "ID del permiso a revocar", required = true) @PathVariable Long permissionId) {
+        boolean removed = roleService.removePermissionFromRole(roleId, permissionId);
+        return ResponseUtil.deleteResponse(removed);
     }
 }

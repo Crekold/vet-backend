@@ -18,7 +18,8 @@ public class LoginResponseDto {
     private String token;
     private String tipo;
     private String nombreUsuario;
-    private Collection<?> roles;
+    private Collection<String> roles; // Cambiado a Collection<String>
+    private String rolNombre; // Añadido rolNombre
     private Boolean passwordChangeRequired; // Nuevo campo (Boolean para permitir null)
-    private Long rolId; // Añadir rolId
+    // rolId eliminado
 }

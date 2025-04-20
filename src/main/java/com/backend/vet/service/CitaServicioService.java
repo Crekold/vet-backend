@@ -50,13 +50,27 @@ public class CitaServicioService {
         
         CitaServicioId id = new CitaServicioId(citaServicioDto.getCitaId(), citaServicioDto.getServicioId());
         
+        // Verificar si ya existe la relación
+        if (citaServicioRepository.existsById(id)) {
+             throw new IllegalStateException("El servicio ya está asociado a esta cita.");
+        }
+
         CitaServicio citaServicio = new CitaServicio();
         citaServicio.setId(id);
-        citaServicio.setCita(cita);
-        citaServicio.setServicio(servicio);
+        citaServicio.setCita(cita); // Asegúrate de que la referencia a Cita está establecida
+        citaServicio.setServicio(servicio); // Asegúrate de que la referencia a Servicio está establecida
         citaServicio.setCantidad(citaServicioDto.getCantidad());
         
+        // Ya no añadimos explícitamente a la colección de Cita
+        // cita.getServicios().add(citaServicio); // Línea eliminada/comentada
+        
+        // Guardar la entidad CitaServicio. Hibernate/JPA debería manejar la relación.
         CitaServicio savedCitaServicio = citaServicioRepository.save(citaServicio);
+        
+        // No es necesario guardar 'cita' explícitamente aquí a menos que 
+        // se hayan hecho otros cambios en 'cita' que necesiten ser persistidos.
+        // citaRepository.save(cita); 
+
         return convertToDto(savedCitaServicio);
     }
     

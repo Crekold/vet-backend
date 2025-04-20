@@ -1,6 +1,7 @@
 package com.backend.vet.service;
 
 import com.backend.vet.dto.UsuarioDto;
+import com.backend.vet.dto.UsuarioUpdateDto; // Importar el nuevo DTO
 import com.backend.vet.exception.BadRequestException;
 import com.backend.vet.exception.ResourceNotFoundException;
 import com.backend.vet.exception.TokenExpiredException; // Necesita ser creada
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable; // Importar Pageable
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils; // Importar StringUtils si no está ya
 
 import java.security.SecureRandom; // Importar SecureRandom
 import java.time.LocalDateTime; // Importar LocalDateTime
@@ -123,49 +125,57 @@ public class UsuarioService {
     }
     
     @Transactional
-    public UsuarioDto updateUsuario(Long id, UsuarioDto usuarioDto) {
+    public UsuarioDto updateUsuario(Long id, UsuarioUpdateDto usuarioUpdateDto) { // Cambiar UsuarioDto a UsuarioUpdateDto
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", id));
-            
+
         // Verificar si el nuevo nombreUsuario ya existe y no pertenece a este usuario
-        if (!usuario.getNombreUsuario().equals(usuarioDto.getNombreUsuario()) && 
-            usuarioRepository.existsByNombreUsuario(usuarioDto.getNombreUsuario())) {
+        if (!usuario.getNombreUsuario().equals(usuarioUpdateDto.getNombreUsuario()) &&
+            usuarioRepository.existsByNombreUsuario(usuarioUpdateDto.getNombreUsuario())) {
             throw new BadRequestException("El nombre de usuario ya está en uso");
         }
-            
+
         // Verificar si el nuevo correo ya existe y no pertenece a este usuario
-        if (!usuario.getCorreo().equals(usuarioDto.getCorreo()) && 
-            usuarioRepository.existsByCorreo(usuarioDto.getCorreo())) {
+        if (!usuario.getCorreo().equals(usuarioUpdateDto.getCorreo()) &&
+            usuarioRepository.existsByCorreo(usuarioUpdateDto.getCorreo())) {
             throw new BadRequestException("El correo electrónico ya está registrado");
         }
-            
-        usuario.setNombreUsuario(usuarioDto.getNombreUsuario());
-        usuario.setCorreo(usuarioDto.getCorreo());
-        usuario.setEspecialidad(usuarioDto.getEspecialidad());
-            
-        if (usuarioDto.getContrasena() != null && !usuarioDto.getContrasena().isEmpty()) {
-            // Validar complejidad Y historial ANTES de codificar y guardar
-            validatePasswordComplexityAndHistory(usuario, usuarioDto.getContrasena());
 
-            String newPasswordHash = passwordEncoder.encode(usuarioDto.getContrasena());
+        // Actualizar campos básicos desde UsuarioUpdateDto
+        usuario.setNombreUsuario(usuarioUpdateDto.getNombreUsuario());
+        usuario.setCorreo(usuarioUpdateDto.getCorreo());
+        usuario.setEspecialidad(usuarioUpdateDto.getEspecialidad()); // Actualizar especialidad
+
+        // Actualizar contraseña solo si se proporciona una nueva y no está vacía
+        if (StringUtils.hasText(usuarioUpdateDto.getContrasena())) {
+            // Validar complejidad Y historial ANTES de codificar y guardar
+            // La validación @Pattern y @Size en UsuarioUpdateDto ya hizo una validación inicial
+            // pero llamamos a nuestro método de servicio para la validación del historial.
+            validatePasswordComplexityAndHistory(usuario, usuarioUpdateDto.getContrasena());
+
+            String newPasswordHash = passwordEncoder.encode(usuarioUpdateDto.getContrasena());
             usuario.setContrasenaHash(newPasswordHash);
             usuario.setPasswordLastChanged(LocalDateTime.now()); // Actualizar fecha de cambio
 
-            // Guardar usuario ANTES de añadir al historial
-            Usuario updatedUsuario = usuarioRepository.save(usuario);
+            // Guardar usuario ANTES de añadir al historial para asegurar la transacción
+            Usuario savedUsuarioWithNewPass = usuarioRepository.save(usuario);
             // Añadir la nueva contraseña al historial DESPUÉS de guardar el usuario
-            addPasswordToHistory(updatedUsuario, newPasswordHash);
-            return convertToDto(updatedUsuario); // Devolver DTO del usuario actualizado
+            addPasswordToHistory(savedUsuarioWithNewPass, newPasswordHash);
+            // Continuar con la actualización del rol si es necesario
+            usuario = savedUsuarioWithNewPass; // Asegurarse de tener la entidad actualizada
         }
-            
-        if (usuarioDto.getRolId() != null && (usuario.getRol() == null || !usuario.getRol().getId().equals(usuarioDto.getRolId()))) {
-            Role role = roleRepository.findById(usuarioDto.getRolId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role", "id", usuarioDto.getRolId()));
+
+        // Actualizar rol si se proporciona un rolId y es diferente al actual
+        if (usuarioUpdateDto.getRolId() != null && (usuario.getRol() == null || !usuario.getRol().getId().equals(usuarioUpdateDto.getRolId()))) {
+            Role role = roleRepository.findById(usuarioUpdateDto.getRolId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role", "id", usuarioUpdateDto.getRolId()));
             usuario.setRol(role);
         }
-            
+
+        // Guardar los cambios finales (si la contraseña no se cambió, esto guarda los otros campos)
+        // Si la contraseña sí se cambió, esto guarda la actualización del rol si ocurrió después.
         Usuario updatedUsuario = usuarioRepository.save(usuario);
-        return convertToDto(updatedUsuario);
+        return convertToDto(updatedUsuario); // Devolver UsuarioDto estándar
     }
     
     @Transactional

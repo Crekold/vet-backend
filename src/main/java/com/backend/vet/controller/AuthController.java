@@ -24,6 +24,7 @@ import org.springframework.security.authentication.LockedException; // Importar 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException; // Importar AuthenticationException
+import org.springframework.security.core.GrantedAuthority; // Importar GrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +37,8 @@ import org.springframework.security.authentication.DisabledException; // Importa
 
 import jakarta.validation.Valid;
 import java.util.Optional; // Importar Optional
+import java.util.Collection; // Importar Collection
+import java.util.stream.Collectors; // Importar Collectors
 
 @RestController
 @RequestMapping("/api/auth")
@@ -100,14 +103,14 @@ public class AuthController {
             
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Obtener el Usuario entity para acceder al rolId (ya lo tenemos de la verificación de activo)
-            // Reutilizamos usuarioOpt si existe, si no, lo buscamos de nuevo (aunque no debería pasar si la autenticación fue exitosa)
-            Long rolId = usuarioOpt.map(u -> u.getRol() != null ? u.getRol().getId() : null)
-                                   .orElseGet(() -> 
-                                       usuarioService.getUsuarioEntityByNombreUsuario(userDetails.getUsername())
-                                           .map(u -> u.getRol() != null ? u.getRol().getId() : null)
-                                           .orElse(null)
-                                   ); 
+            // Obtener autoridades como Collection<String>
+            Collection<String> authorities = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+
+            // Obtener el nombre del rol desde el Optional<Usuario> ya obtenido
+            String rolNombre = usuarioOpt.map(u -> u.getRol() != null ? u.getRol().getNombre() : null)
+                                         .orElse(null); // Si usuarioOpt está vacío (no debería pasar aquí), rolNombre será null
 
             // 4. Verificar si la contraseña ha expirado
             boolean passwordExpired = usuarioService.isPasswordExpired(userDetails.getUsername());
@@ -117,9 +120,9 @@ public class AuthController {
                     .token(jwt)
                     .tipo("Bearer")
                     .nombreUsuario(userDetails.getUsername())
-                    .roles(userDetails.getAuthorities())
+                    .roles(authorities) // Usar la colección de Strings
+                    .rolNombre(rolNombre) // Añadir rolNombre
                     .passwordChangeRequired(passwordExpired) // Añadir estado de expiración
-                    .rolId(rolId) // Añadir rolId a la respuesta
                     .build();
             
             return ResponseUtil.ok(responseDto);

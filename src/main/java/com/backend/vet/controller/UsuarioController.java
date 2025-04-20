@@ -1,6 +1,7 @@
 package com.backend.vet.controller;
 
 import com.backend.vet.dto.UsuarioDto;
+import com.backend.vet.dto.UsuarioUpdateDto; // Importar el nuevo DTO
 import com.backend.vet.service.UsuarioService;
 import com.backend.vet.util.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,8 +67,8 @@ public class UsuarioController {
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id, 
             @Parameter(description = "Datos actualizados del usuario", required = true)
-            @Valid @RequestBody UsuarioDto usuarioDto) {
-        UsuarioDto updatedUsuario = usuarioService.updateUsuario(id, usuarioDto);
+            @Valid @RequestBody UsuarioUpdateDto usuarioUpdateDto) { // Cambiar UsuarioDto a UsuarioUpdateDto
+        UsuarioDto updatedUsuario = usuarioService.updateUsuario(id, usuarioUpdateDto); // Pasar el nuevo DTO al servicio
         return updatedUsuario != null ? ResponseUtil.ok(updatedUsuario) : ResponseUtil.notFound();
     }
     

@@ -105,6 +105,43 @@ public class RoleService {
                 .map(p -> new PermissionDto(p.getId(), p.getName()))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<PermissionDto> assignPermissionToRole(Long roleId, Long permissionId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con ID: " + roleId));
+        Permission permission = permissionRepository.findById(permissionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado con ID: " + permissionId));
+
+        if (!role.getPermissions().contains(permission)) {
+            role.getPermissions().add(permission);
+            roleRepository.save(role);
+        } else {
+             // Opcional: Lanzar excepción si ya está asignado, o simplemente devolver la lista actual
+             // throw new BadRequestException("El permiso " + permission.getName() + " ya está asignado al rol " + role.getNombre());
+        }
+
+        // Devolvemos la lista actualizada de permisos para ese rol
+        return role.getPermissions().stream()
+                .map(p -> new PermissionDto(p.getId(), p.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean removePermissionFromRole(Long roleId, Long permissionId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con ID: " + roleId));
+        Permission permission = permissionRepository.findById(permissionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Permiso no encontrado con ID: " + permissionId));
+
+        if (role.getPermissions().contains(permission)) {
+            role.getPermissions().remove(permission);
+            roleRepository.save(role);
+            return true; // Se eliminó correctamente
+        }
+        // Si el permiso no estaba asignado, la operación no cambió nada.
+        return false; // No se eliminó porque no existía la asociación.
+    }
     
     private RoleDto convertToDto(Role role) {
         RoleDto dto = new RoleDto();
