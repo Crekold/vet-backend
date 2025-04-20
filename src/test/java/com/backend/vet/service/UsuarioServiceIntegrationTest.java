@@ -21,6 +21,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+// Importar UsuarioUpdateDto
+import com.backend.vet.dto.UsuarioUpdateDto;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +82,17 @@ class UsuarioServiceIntegrationTest {
         return dto;
     }
 
+    // Helper para crear UsuarioUpdateDto
+    private UsuarioUpdateDto createValidUsuarioUpdateDto(String username, String email, String password, Long rolId, String especialidad) {
+        UsuarioUpdateDto dto = new UsuarioUpdateDto();
+        dto.setNombreUsuario(username);
+        dto.setCorreo(email);
+        dto.setContrasena(password); // La contraseña es opcional, pero la incluimos para los tests de cambio de contraseña
+        dto.setRolId(rolId);
+        dto.setEspecialidad(especialidad);
+        return dto;
+    }
+
     @Test
     void createUsuario_shouldAddPasswordToHistory() {
         UsuarioDto dto = createValidUsuarioDto("histUser1", "hist1@test.com", initialPassword);
@@ -102,8 +116,8 @@ class UsuarioServiceIntegrationTest {
         UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
         Long userId = createdUserDto.getId();
 
-        // Act: Actualizar contraseña
-        UsuarioDto updateDto = createValidUsuarioDto("histUser2", "hist2@test.com", secondPassword); // Mismo user/email, nueva pass
+        // Act: Actualizar contraseña usando UsuarioUpdateDto
+        UsuarioUpdateDto updateDto = createValidUsuarioUpdateDto("histUser2", "hist2@test.com", secondPassword, defaultRole.getId(), "General");
         usuarioService.updateUsuario(userId, updateDto);
 
         // Assert
@@ -130,11 +144,13 @@ class UsuarioServiceIntegrationTest {
         UsuarioDto dto = createValidUsuarioDto("histUser3", "hist3@test.com", initialPassword);
         UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
         Long userId = createdUserDto.getId();
-        UsuarioDto updateDto1 = createValidUsuarioDto("histUser3", "hist3@test.com", secondPassword);
+        // Usar UsuarioUpdateDto para la primera actualización
+        UsuarioUpdateDto updateDto1 = createValidUsuarioUpdateDto("histUser3", "hist3@test.com", secondPassword, defaultRole.getId(), "General");
         usuarioService.updateUsuario(userId, updateDto1); // Ahora la contraseña es secondPassword
 
         // Act & Assert: Intentar volver a la contraseña inicial (que está en el historial reciente)
-        UsuarioDto updateDto2 = createValidUsuarioDto("histUser3", "hist3@test.com", initialPassword);
+        // Usar UsuarioUpdateDto para el intento fallido
+        UsuarioUpdateDto updateDto2 = createValidUsuarioUpdateDto("histUser3", "hist3@test.com", initialPassword, defaultRole.getId(), "General");
 
         BadRequestException exception = assertThrows(BadRequestException.class, () -> {
             usuarioService.updateUsuario(userId, updateDto2);
@@ -185,7 +201,8 @@ class UsuarioServiceIntegrationTest {
         UsuarioDto dto = createValidUsuarioDto("histUser5", "hist5@test.com", initialPassword);
         UsuarioDto createdUserDto = usuarioService.createUsuario(dto);
         Long userId = createdUserDto.getId();
-        UsuarioDto updateDto = createValidUsuarioDto("histUser5", "hist5@test.com", secondPassword);
+        // Usar UsuarioUpdateDto para cambiar la contraseña
+        UsuarioUpdateDto updateDto = createValidUsuarioUpdateDto("histUser5", "hist5@test.com", secondPassword, defaultRole.getId(), "General");
         usuarioService.updateUsuario(userId, updateDto); // Contraseña actual es secondPassword
         String token = usuarioService.createPasswordResetToken("hist5@test.com");
 
@@ -217,7 +234,9 @@ class UsuarioServiceIntegrationTest {
         // Act: Cambiar contraseña PASSWORD_HISTORY_SIZE veces más (total HISTORY_SIZE + 1)
         for (int i = 0; i < PASSWORD_HISTORY_SIZE; i++) {
             String newPassword = "NewPass" + i + "$";
-            UsuarioDto updateDto = createValidUsuarioDto(user.getNombreUsuario(), user.getCorreo(), newPassword);
+            // Usar UsuarioUpdateDto para actualizar
+            // Corregir aquí: Usar defaultRole.getId() en lugar de user.getRole().getId()
+            UsuarioUpdateDto updateDto = createValidUsuarioUpdateDto(user.getNombreUsuario(), user.getCorreo(), newPassword, defaultRole.getId(), user.getEspecialidad());
             usuarioService.updateUsuario(userId, updateDto);
             currentPassword = newPassword; // Actualizar para la siguiente iteración si fuera necesario
         }
