@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -29,4 +30,5 @@ public class ClienteDto {
     private String correo;
     
     private String direccion;
+    private LocalDateTime fechaRegistro;
 }

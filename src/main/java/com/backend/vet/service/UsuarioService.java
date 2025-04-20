@@ -339,4 +339,10 @@ public class UsuarioService {
         
         return dto;
     }
+
+    public List<UsuarioDto> getUsuariosByRolNombre(String rolNombre) {
+        return usuarioRepository.findAllByRolNombreIgnoreCase(rolNombre).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Data
 @Entity
@@ -30,4 +32,8 @@ public class Cliente {
     
     @Column(name = "direccion")
     private String direccion;
+
+    @CreationTimestamp
+    @Column(name = "fecha_registro", updatable = false)
+    private LocalDateTime fechaRegistro;
 }

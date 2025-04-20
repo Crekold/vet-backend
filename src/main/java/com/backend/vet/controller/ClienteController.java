@@ -13,8 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -60,7 +62,12 @@ public class ClienteController {
     public ResponseEntity<ClienteDto> createCliente(
             @Parameter(description = "Datos del nuevo cliente", required = true)
             @Valid @RequestBody ClienteDto clienteDto) {
-        return ResponseUtil.created(clienteService.createCliente(clienteDto));
+        ClienteDto created = clienteService.createCliente(clienteDto);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
     
     @Operation(summary = "Actualizar cliente", description = "${api.cliente.update.description}")

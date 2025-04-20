@@ -86,6 +86,7 @@ public class ClienteService {
         dto.setTelefono(cliente.getTelefono());
         dto.setCorreo(cliente.getCorreo());
         dto.setDireccion(cliente.getDireccion());
+        dto.setFechaRegistro(cliente.getFechaRegistro());
         return dto;
     }
     

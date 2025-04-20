@@ -98,4 +98,35 @@ public class UsuarioController {
                 .collect(Collectors.toList());
         return ResponseUtil.ok(usuarios);
     }
+
+    @Operation(summary = "Obtener rol de un usuario", description = "Devuelve el nombre del rol asignado al usuario por su ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Rol encontrado",
+                     content = @Content(schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
+    @GetMapping("/{id}/rol")
+    @PreAuthorize("hasAuthority('USUARIO_READ') or @securityService.isCurrentUser(#id)")
+    public ResponseEntity<String> getUsuarioRole(
+            @Parameter(description = "ID del usuario", required = true)
+            @PathVariable Long id) {
+        UsuarioDto usuario = usuarioService.getUsuarioById(id);
+        return usuario != null
+                ? ResponseUtil.ok(usuario.getRolNombre())
+                : ResponseUtil.notFound();
+    }
+
+    @Operation(summary = "Obtener usuarios por nombre de rol", description = "Devuelve todos los usuarios que tienen el rol especificado")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Usuarios encontrados"),
+        @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
+    })
+    @GetMapping("/rol/{rolNombre}/usuarios")
+    @PreAuthorize("hasAuthority('USUARIO_READ')")
+    public ResponseEntity<List<UsuarioDto>> getUsuariosByRolNombre(
+            @Parameter(description = "Nombre del rol", required = true)
+            @PathVariable String rolNombre) {
+        List<UsuarioDto> usuarios = usuarioService.getUsuariosByRolNombre(rolNombre);
+        return ResponseUtil.ok(usuarios);
+    }
 }
