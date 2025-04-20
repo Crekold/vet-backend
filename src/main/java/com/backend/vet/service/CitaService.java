@@ -171,8 +171,19 @@ public class CitaService {
      * @return lista de citas próximas
      */
     public List<CitaDto> findProximasCitas() {
-        return citaRepository.findProximasCitas().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+        LocalDate hoy = LocalDate.now();
+        List<Cita> citas = citaRepository.findByFechaGreaterThanEqual(hoy);
+        
+        return citas.stream()
+            .map(entity -> {
+                CitaDto dto = convertToDto(entity);
+                
+                // asignar especie y raza
+                dto.setEspecie(entity.getMascota().getEspecie());
+                dto.setRaza(entity.getMascota().getRaza());
+                
+                return dto;
+            })
+            .collect(Collectors.toList());
     }
 }

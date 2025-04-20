@@ -29,6 +29,12 @@ public class CitaDto {
     private Long mascotaId;
     private String mascotaNombre;
     
+    @Size(max = 30, message = "La especie no debe exceder los 30 caracteres")
+    private String especie;
+    
+    @Size(max = 30, message = "La raza no debe exceder los 30 caracteres")
+    private String raza;
+    
     private Long usuarioId; // ID del veterinario
     private String usuarioNombre; // Nombre del veterinario
     

@@ -17,6 +17,7 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByUsuarioId(Long usuarioId);
     List<Cita> findByFechaBetween(LocalDate inicio, LocalDate fin);
     List<Cita> findByEstado(String estado);
+    List<Cita> findByFechaGreaterThanEqual(LocalDate fecha);
 
     /**
      * Cuenta las citas programadas para hoy
