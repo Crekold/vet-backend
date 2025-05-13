@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,8 @@ import java.util.List;
 @RequestMapping("/api/cita-servicios")
 @Tag(name = "Servicios por Cita", description = "API para gestionar los servicios médicos asociados a las citas")
 public class CitaServicioController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(CitaServicioController.class);
     
     @Autowired
     private CitaServicioService citaServicioService;
@@ -35,7 +39,10 @@ public class CitaServicioController {
     public ResponseEntity<List<CitaServicioDto>> getServiciosByCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {
-        return ResponseUtil.ok(citaServicioService.getServiciosByCita(citaId));
+        logger.info("Consultando servicios para la cita ID: {}", citaId);
+        List<CitaServicioDto> servicios = citaServicioService.getServiciosByCita(citaId);
+        logger.debug("Se encontraron {} servicios para la cita ID: {}", servicios.size(), citaId);
+        return ResponseUtil.ok(servicios);
     }
     
     @Operation(summary = "Obtener citas por servicio", description = "${api.citaServicio.getByServicio.description}")
@@ -49,7 +56,10 @@ public class CitaServicioController {
     public ResponseEntity<List<CitaServicioDto>> getCitasByServicio(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long servicioId) {
-        return ResponseEntity.ok(citaServicioService.getCitasByServicio(servicioId));
+        logger.info("Consultando citas para el servicio ID: {}", servicioId);
+        List<CitaServicioDto> citas = citaServicioService.getCitasByServicio(servicioId);
+        logger.debug("Se encontraron {} citas para el servicio ID: {}", citas.size(), servicioId);
+        return ResponseEntity.ok(citas);
     }
     
     @Operation(summary = "Agregar servicio a cita", description = "${api.citaServicio.addServicio.description}")
@@ -64,7 +74,16 @@ public class CitaServicioController {
     public ResponseEntity<CitaServicioDto> addServicioToCita(
             @Parameter(description = "Datos del servicio a agregar", required = true)
             @Valid @RequestBody CitaServicioDto citaServicioDto) {
-        return ResponseEntity.ok(citaServicioService.addServicioToCita(citaServicioDto));
+        logger.info("Agregando servicio ID: {} a la cita ID: {}", 
+                   citaServicioDto.getServicioId(), citaServicioDto.getCitaId());
+        try {
+            CitaServicioDto resultado = citaServicioService.addServicioToCita(citaServicioDto);
+            logger.info("Servicio agregado exitosamente a la cita");
+            return ResponseEntity.ok(resultado);
+        } catch (Exception e) {
+            logger.error("Error al agregar servicio a la cita: {}", e.getMessage());
+            throw e;
+        }
     }
     
     @Operation(summary = "Actualizar servicio en cita", description = "${api.citaServicio.update.description}")
@@ -79,7 +98,16 @@ public class CitaServicioController {
     public ResponseEntity<CitaServicioDto> updateCitaServicio(
             @Parameter(description = "Datos actualizados del servicio", required = true)
             @Valid @RequestBody CitaServicioDto citaServicioDto) {
-        return ResponseEntity.ok(citaServicioService.updateCitaServicio(citaServicioDto));
+        logger.info("Actualizando servicio ID: {} para la cita ID: {}", 
+                   citaServicioDto.getServicioId(), citaServicioDto.getCitaId());
+        try {
+            CitaServicioDto resultado = citaServicioService.updateCitaServicio(citaServicioDto);
+            logger.info("Servicio actualizado exitosamente en la cita");
+            return ResponseEntity.ok(resultado);
+        } catch (Exception e) {
+            logger.error("Error al actualizar servicio en la cita: {}", e.getMessage());
+            throw e;
+        }
     }
     
     @Operation(summary = "Eliminar servicio de cita", description = "${api.citaServicio.delete.description}")
@@ -95,8 +123,14 @@ public class CitaServicioController {
             @PathVariable Long citaId,
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long servicioId) {
+        logger.info("Eliminando servicio ID: {} de la cita ID: {}", servicioId, citaId);
         boolean removed = citaServicioService.removeServicioFromCita(citaId, servicioId);
-        return ResponseUtil.deleteResponse(removed);
+        if (!removed) {
+            logger.warn("No se pudo eliminar el servicio ID: {} de la cita ID: {}", servicioId, citaId);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Servicio eliminado exitosamente de la cita");
+        return ResponseUtil.deleteResponse(true);
     }
     
     @Operation(summary = "Eliminar todos los servicios de una cita", description = "${api.citaServicio.deleteAll.description}")
@@ -110,7 +144,13 @@ public class CitaServicioController {
     public ResponseEntity<Void> removeAllServiciosFromCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long citaId) {
+        logger.info("Eliminando todos los servicios de la cita ID: {}", citaId);
         boolean removed = citaServicioService.removeAllServiciosFromCita(citaId);
+        if (!removed) {
+            logger.warn("No se pudieron eliminar los servicios de la cita ID: {}", citaId);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Todos los servicios eliminados exitosamente de la cita ID: {}", citaId);
         return ResponseUtil.deleteResponse(removed);
     }
 }

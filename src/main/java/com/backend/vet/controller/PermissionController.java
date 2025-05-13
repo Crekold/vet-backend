@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,8 @@ import java.util.List;
 @Tag(name = "Permisos", description = "API para la gestión de permisos del sistema")
 public class PermissionController {
 
+    private static final Logger logger = LoggerFactory.getLogger(PermissionController.class);
+
     @Autowired
     private PermissionService permissionService;
 
@@ -30,8 +34,11 @@ public class PermissionController {
         @ApiResponse(responseCode = "403", description = "${api.response-codes.forbidden.description}")
     })
     @GetMapping
-    @PreAuthorize("hasAuthority('PERMISSION_READ')") // Asegúrate de que exista este permiso o usa uno adecuado
+    @PreAuthorize("hasAuthority('PERMISSION_READ')")
     public ResponseEntity<List<PermissionDto>> getAllPermissions() {
-        return ResponseUtil.ok(permissionService.getAllPermissions());
+        logger.info("Solicitud para obtener todos los permisos del sistema");
+        List<PermissionDto> permissions = permissionService.getAllPermissions();
+        logger.debug("Se encontraron {} permisos en el sistema", permissions.size());
+        return ResponseUtil.ok(permissions);
     }
 }

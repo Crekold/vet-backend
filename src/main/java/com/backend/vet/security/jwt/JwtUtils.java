@@ -11,11 +11,12 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtUtils {
-    private static final Logger logger = Logger.getLogger(JwtUtils.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${app.jwt.secret:miClaveSecretaPorDefecto}")
     private String jwtSecret;

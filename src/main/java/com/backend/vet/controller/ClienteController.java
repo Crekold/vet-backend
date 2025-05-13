@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,8 @@ import java.util.List;
 @Tag(name = "Clientes", description = "API para la gestión de clientes")
 public class ClienteController {
     
+    private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
+    
     @Autowired
     private ClienteService clienteService;
     
@@ -35,7 +39,10 @@ public class ClienteController {
     @GetMapping
     @PreAuthorize("hasAuthority('CLIENTE_READ')")
     public ResponseEntity<List<ClienteDto>> getAllClientes() {
-        return ResponseUtil.ok(clienteService.getAllClientes());
+        logger.info("Consultando todos los clientes");
+        List<ClienteDto> clientes = clienteService.getAllClientes();
+        logger.debug("Se encontraron {} clientes en total", clientes.size());
+        return ResponseUtil.ok(clientes);
     }
     
     @Operation(summary = "Obtener cliente por ID", description = "${api.cliente.getById.description}")
@@ -48,8 +55,14 @@ public class ClienteController {
     public ResponseEntity<ClienteDto> getClienteById(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id) {
+        logger.info("Buscando cliente con ID: {}", id);
         ClienteDto cliente = clienteService.getClienteById(id);
-        return cliente != null ? ResponseUtil.ok(cliente) : ResponseUtil.notFound();
+        if (cliente == null) {
+            logger.warn("No se encontró el cliente con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.debug("Cliente encontrado con ID: {}", id);
+        return ResponseUtil.ok(cliente);
     }
     
     @Operation(summary = "Crear nuevo cliente", description = "${api.cliente.create.description}")
@@ -62,12 +75,19 @@ public class ClienteController {
     public ResponseEntity<ClienteDto> createCliente(
             @Parameter(description = "Datos del nuevo cliente", required = true)
             @Valid @RequestBody ClienteDto clienteDto) {
-        ClienteDto created = clienteService.createCliente(clienteDto);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(created.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(created);
+        logger.info("Creando nuevo cliente: {}", clienteDto.getNombre());
+        try {
+            ClienteDto created = clienteService.createCliente(clienteDto);
+            logger.info("Cliente creado exitosamente con ID: {}", created.getId());
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(created.getId())
+                    .toUri();
+            return ResponseEntity.created(location).body(created);
+        } catch (Exception e) {
+            logger.error("Error al crear cliente: {}", e.getMessage());
+            throw e;
+        }
     }
     
     @Operation(summary = "Actualizar cliente", description = "${api.cliente.update.description}")
@@ -83,8 +103,14 @@ public class ClienteController {
             @PathVariable Long id, 
             @Parameter(description = "Datos actualizados del cliente", required = true)
             @Valid @RequestBody ClienteDto clienteDto) {
+        logger.info("Actualizando cliente con ID: {}", id);
         ClienteDto updatedCliente = clienteService.updateCliente(id, clienteDto);
-        return updatedCliente != null ? ResponseUtil.ok(updatedCliente) : ResponseUtil.notFound();
+        if (updatedCliente == null) {
+            logger.warn("No se pudo actualizar el cliente con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Cliente actualizado exitosamente con ID: {}", id);
+        return ResponseUtil.ok(updatedCliente);
     }
     
     @Operation(summary = "Eliminar cliente", description = "${api.cliente.delete.description}")
@@ -97,6 +123,13 @@ public class ClienteController {
     public ResponseEntity<Void> deleteCliente(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long id) {
-        return ResponseUtil.deleteResponse(clienteService.deleteCliente(id));
+        logger.info("Eliminando cliente con ID: {}", id);
+        boolean deleted = clienteService.deleteCliente(id);
+        if (!deleted) {
+            logger.warn("No se pudo eliminar el cliente con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Cliente eliminado exitosamente con ID: {}", id);
+        return ResponseUtil.deleteResponse(deleted);
     }
 }

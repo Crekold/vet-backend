@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,8 @@ import java.util.List;
 @Tag(name = "Citas", description = "API para la gestión de citas veterinarias")
 public class CitaController {
     
+    private static final Logger logger = LoggerFactory.getLogger(CitaController.class);
+    
     @Autowired
     private CitaService citaService;
     
@@ -34,7 +38,10 @@ public class CitaController {
     @GetMapping
     @PreAuthorize("hasAuthority('CITA_READ')")
     public ResponseEntity<List<CitaDto>> getAllCitas() {
-        return ResponseUtil.ok(citaService.getAllCitas());
+        logger.info("Obteniendo todas las citas");
+        List<CitaDto> citas = citaService.getAllCitas();
+        logger.debug("Se encontraron {} citas", citas.size());
+        return ResponseUtil.ok(citas);
     }
     
     @Operation(summary = "Obtener cita por ID", description = "${api.cita.getById.description}")
@@ -48,8 +55,14 @@ public class CitaController {
     public ResponseEntity<CitaDto> getCitaById(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long id) {
+        logger.info("Buscando cita con ID: {}", id);
         CitaDto cita = citaService.getCitaById(id);
-        return cita != null ? ResponseUtil.ok(cita) : ResponseUtil.notFound();
+        if (cita == null) {
+            logger.warn("No se encontró la cita con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.debug("Cita encontrada con ID: {}", id);
+        return ResponseUtil.ok(cita);
     }
     
     @Operation(summary = "Crear una nueva cita", description = "${api.cita.create.description}")
@@ -63,7 +76,11 @@ public class CitaController {
     public ResponseEntity<CitaDto> createCita(
             @Parameter(description = "Datos de la cita", required = true)
             @Valid @RequestBody CitaDto citaDto) {
-        return ResponseUtil.created(citaService.createCita(citaDto));
+        logger.info("Creando nueva cita para mascota ID: {} con veterinario ID: {}", 
+                   citaDto.getMascotaId(), citaDto.getUsuarioId());
+        CitaDto created = citaService.createCita(citaDto);
+        logger.info("Cita creada exitosamente con ID: {}", created.getId());
+        return ResponseUtil.created(created);
     }
     
     @Operation(summary = "Actualizar cita", description = "${api.cita.update.description}")
@@ -80,8 +97,14 @@ public class CitaController {
             @PathVariable Long id, 
             @Parameter(description = "Datos actualizados de la cita", required = true)
             @Valid @RequestBody CitaDto citaDto) {
+        logger.info("Actualizando cita con ID: {}", id);
         CitaDto updatedCita = citaService.updateCita(id, citaDto);
-        return updatedCita != null ? ResponseUtil.ok(updatedCita) : ResponseUtil.notFound();
+        if (updatedCita == null) {
+            logger.warn("No se pudo actualizar la cita con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Cita actualizada exitosamente con ID: {}", id);
+        return ResponseUtil.ok(updatedCita);
     }
     
     @Operation(summary = "Eliminar cita", description = "${api.cita.delete.description}")
@@ -95,7 +118,14 @@ public class CitaController {
     public ResponseEntity<Void> deleteCita(
             @Parameter(description = "ID de la cita", required = true)
             @PathVariable Long id) {
-        return ResponseUtil.deleteResponse(citaService.deleteCita(id));
+        logger.info("Eliminando cita con ID: {}", id);
+        boolean deleted = citaService.deleteCita(id);
+        if (!deleted) {
+            logger.warn("No se pudo eliminar la cita con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
+        logger.info("Cita eliminada exitosamente con ID: {}", id);
+        return ResponseUtil.deleteResponse(true);
     }
     
     @Operation(summary = "Obtener citas por mascota", description = "${api.cita.getByMascota.description}")
@@ -108,7 +138,10 @@ public class CitaController {
     public ResponseEntity<List<CitaDto>> getCitasByMascotaId(
             @Parameter(description = "ID de la mascota", required = true)
             @PathVariable Long mascotaId) {
-        return ResponseEntity.ok(citaService.getCitasByMascotaId(mascotaId));
+        logger.info("Buscando citas para la mascota con ID: {}", mascotaId);
+        List<CitaDto> citas = citaService.getCitasByMascotaId(mascotaId);
+        logger.debug("Se encontraron {} citas para la mascota ID: {}", citas.size(), mascotaId);
+        return ResponseEntity.ok(citas);
     }
     
     @Operation(summary = "Obtener citas por cliente", description = "${api.cita.getByCliente.description}")
@@ -121,7 +154,10 @@ public class CitaController {
     public ResponseEntity<List<CitaDto>> getCitasByClienteId(
             @Parameter(description = "ID del cliente", required = true)
             @PathVariable Long clienteId) {
-        return ResponseEntity.ok(citaService.getCitasByClienteId(clienteId));
+        logger.info("Buscando citas para el cliente con ID: {}", clienteId);
+        List<CitaDto> citas = citaService.getCitasByClienteId(clienteId);
+        logger.debug("Se encontraron {} citas para el cliente ID: {}", citas.size(), clienteId);
+        return ResponseEntity.ok(citas);
     }
     
     @Operation(summary = "Obtener citas por veterinario", description = "${api.cita.getByVeterinario.description}")
@@ -134,7 +170,10 @@ public class CitaController {
     public ResponseEntity<List<CitaDto>> getCitasByVeterinarioId(
             @Parameter(description = "ID del veterinario", required = true)
             @PathVariable Long veterinarioId) {
-        return ResponseEntity.ok(citaService.getCitasByVeterinarioId(veterinarioId));
+        logger.info("Buscando citas para el veterinario con ID: {}", veterinarioId);
+        List<CitaDto> citas = citaService.getCitasByVeterinarioId(veterinarioId);
+        logger.debug("Se encontraron {} citas para el veterinario ID: {}", citas.size(), veterinarioId);
+        return ResponseEntity.ok(citas);
     }
     
     @Operation(summary = "Obtener citas por rango de fechas", description = "${api.cita.getByFechaRango.description}")
@@ -149,7 +188,10 @@ public class CitaController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @Parameter(description = "Fecha de fin", required = true)
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        return ResponseEntity.ok(citaService.getCitasByFechaRango(inicio, fin));
+        logger.info("Buscando citas entre las fechas {} y {}", inicio, fin);
+        List<CitaDto> citas = citaService.getCitasByFechaRango(inicio, fin);
+        logger.debug("Se encontraron {} citas en el rango de fechas", citas.size());
+        return ResponseEntity.ok(citas);
     }
     
     @Operation(summary = "Obtener citas por estado", description = "${api.cita.getByEstado.description}")
@@ -162,7 +204,10 @@ public class CitaController {
     public ResponseEntity<List<CitaDto>> getCitasByEstado(
             @Parameter(description = "Estado de la cita (Pendiente, Atendida, Cancelada)", required = true)
             @PathVariable String estado) {
-        return ResponseEntity.ok(citaService.getCitasByEstado(estado));
+        logger.info("Buscando citas con estado: {}", estado);
+        List<CitaDto> citas = citaService.getCitasByEstado(estado);
+        logger.debug("Se encontraron {} citas en estado {}", citas.size(), estado);
+        return ResponseEntity.ok(citas);
     }
 
     @Operation(summary = "Obtener próximas citas", 
@@ -174,6 +219,9 @@ public class CitaController {
     @GetMapping("/proximas")
     @PreAuthorize("hasAuthority('CITA_READ')")
     public ResponseEntity<List<CitaDto>> getProximasCitas() {
-        return ResponseUtil.ok(citaService.findProximasCitas());
+        logger.info("Obteniendo lista de próximas citas");
+        List<CitaDto> citas = citaService.findProximasCitas();
+        logger.debug("Se encontraron {} próximas citas", citas.size());
+        return ResponseUtil.ok(citas);
     }
 }

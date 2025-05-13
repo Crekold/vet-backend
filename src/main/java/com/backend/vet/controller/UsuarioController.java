@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 @Tag(name = "Usuarios", description = "API para la gestión de usuarios")
 public class UsuarioController {
     
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
+    
     @Autowired
     private UsuarioService usuarioService;
     
@@ -36,7 +40,10 @@ public class UsuarioController {
     @GetMapping
     @PreAuthorize("hasAuthority('USUARIO_READ')")
     public ResponseEntity<List<UsuarioDto>> getAllUsuarios() {
-        return ResponseUtil.ok(usuarioService.getAllUsuarios());
+        logger.info("Obteniendo lista de todos los usuarios");
+        List<UsuarioDto> usuarios = usuarioService.getAllUsuarios();
+        logger.debug("Se encontraron {} usuarios", usuarios.size());
+        return ResponseUtil.ok(usuarios);
     }
     
     @Operation(summary = "Obtener usuario por ID", description = "${api.usuario.getById.description}")
@@ -50,8 +57,15 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDto> getUsuarioById(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id) {
+        logger.info("Buscando usuario con ID: {}", id);
         UsuarioDto usuario = usuarioService.getUsuarioById(id);
-        return usuario != null ? ResponseUtil.ok(usuario) : ResponseUtil.notFound();
+        if (usuario != null) {
+            logger.debug("Usuario encontrado con ID: {}", id);
+            return ResponseUtil.ok(usuario);
+        } else {
+            logger.warn("No se encontró el usuario con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
     }
     
     @Operation(summary = "Actualizar usuario", description = "${api.usuario.update.description}")
@@ -68,8 +82,15 @@ public class UsuarioController {
             @PathVariable Long id, 
             @Parameter(description = "Datos actualizados del usuario", required = true)
             @Valid @RequestBody UsuarioUpdateDto usuarioUpdateDto) { // Cambiar UsuarioDto a UsuarioUpdateDto
+        logger.info("Actualizando usuario con ID: {}", id);
         UsuarioDto updatedUsuario = usuarioService.updateUsuario(id, usuarioUpdateDto); // Pasar el nuevo DTO al servicio
-        return updatedUsuario != null ? ResponseUtil.ok(updatedUsuario) : ResponseUtil.notFound();
+        if (updatedUsuario != null) {
+            logger.debug("Usuario actualizado correctamente con ID: {}", id);
+            return ResponseUtil.ok(updatedUsuario);
+        } else {
+            logger.warn("No se pudo actualizar el usuario con ID: {} - No encontrado", id);
+            return ResponseUtil.notFound();
+        }
     }
     
     @Operation(summary = "Eliminar usuario", description = "${api.usuario.delete.description}")
@@ -83,7 +104,14 @@ public class UsuarioController {
     public ResponseEntity<Void> deleteUsuario(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id) {
-        return ResponseUtil.deleteResponse(usuarioService.deleteUsuario(id));
+        logger.info("Eliminando usuario con ID: {}", id);
+        boolean deleted = usuarioService.deleteUsuario(id);
+        if (deleted) {
+            logger.debug("Usuario eliminado correctamente");
+        } else {
+            logger.warn("No se pudo eliminar el usuario con ID: {} - No encontrado", id);
+        }
+        return ResponseUtil.deleteResponse(deleted);
     }
 
     @Operation(summary = "Obtener todos los veterinarios", description = "${api.usuario.getAllVeterinarios.description}")
@@ -94,10 +122,12 @@ public class UsuarioController {
     @GetMapping("/veterinarios")
     @PreAuthorize("hasAuthority('USUARIO_READ')")
     public ResponseEntity<List<UsuarioDto>> getAllVeterinarios() {
-        List<UsuarioDto> usuarios = usuarioService.getAllUsuarios().stream()
+        logger.info("Obteniendo lista de todos los veterinarios");
+        List<UsuarioDto> veterinarios = usuarioService.getAllUsuarios().stream()
                 .filter(u -> "VETERINARIO".equalsIgnoreCase(u.getRolNombre()))
                 .collect(Collectors.toList());
-        return ResponseUtil.ok(usuarios);
+        logger.debug("Se encontraron {} veterinarios", veterinarios.size());
+        return ResponseUtil.ok(veterinarios);
     }
 
     @Operation(summary = "Obtener rol de un usuario", description = "Devuelve el nombre del rol asignado al usuario por su ID")
@@ -111,10 +141,15 @@ public class UsuarioController {
     public ResponseEntity<String> getUsuarioRole(
             @Parameter(description = "ID del usuario", required = true)
             @PathVariable Long id) {
+        logger.info("Obteniendo rol del usuario con ID: {}", id);
         UsuarioDto usuario = usuarioService.getUsuarioById(id);
-        return usuario != null
-                ? ResponseUtil.ok(usuario.getRolNombre())
-                : ResponseUtil.notFound();
+        if (usuario != null) {
+            logger.debug("Rol del usuario {}: {}", id, usuario.getRolNombre());
+            return ResponseUtil.ok(usuario.getRolNombre());
+        } else {
+            logger.warn("No se encontró el usuario con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
     }
 
     @Operation(summary = "Obtener usuarios por nombre de rol", description = "Devuelve todos los usuarios que tienen el rol especificado")
@@ -127,7 +162,9 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioDto>> getUsuariosByRolNombre(
             @Parameter(description = "Nombre del rol", required = true)
             @PathVariable String rolNombre) {
+        logger.info("Buscando usuarios con rol: {}", rolNombre);
         List<UsuarioDto> usuarios = usuarioService.getUsuariosByRolNombre(rolNombre);
+        logger.debug("Se encontraron {} usuarios con rol {}", usuarios.size(), rolNombre);
         return ResponseUtil.ok(usuarios);
     }
 }

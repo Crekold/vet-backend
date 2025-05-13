@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +24,8 @@ import java.util.List;
 @Tag(name = "Servicios Médicos", description = "API para la gestión de servicios médicos veterinarios")
 public class ServicioController {
     
+    private static final Logger logger = LoggerFactory.getLogger(ServicioController.class);
+    
     @Autowired
     private ServicioService servicioService;
     
@@ -32,7 +36,10 @@ public class ServicioController {
     @GetMapping
     @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getAllServicios() {
-        return ResponseUtil.ok(servicioService.getAllServicios());
+        logger.info("Obteniendo lista de todos los servicios");
+        List<ServicioDto> servicios = servicioService.getAllServicios();
+        logger.debug("Se encontraron {} servicios", servicios.size());
+        return ResponseUtil.ok(servicios);
     }
     
     @Operation(summary = "Obtener servicio por ID", description = "${api.servicio.getById.description}")
@@ -45,8 +52,15 @@ public class ServicioController {
     public ResponseEntity<ServicioDto> getServicioById(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long id) {
+        logger.info("Buscando servicio con ID: {}", id);
         ServicioDto servicio = servicioService.getServicioById(id);
-        return servicio != null ? ResponseUtil.ok(servicio) : ResponseUtil.notFound();
+        if (servicio != null) {
+            logger.debug("Servicio encontrado: {}", servicio.getNombre());
+            return ResponseUtil.ok(servicio);
+        } else {
+            logger.warn("No se encontró el servicio con ID: {}", id);
+            return ResponseUtil.notFound();
+        }
     }
     
     @Operation(summary = "Buscar servicios por nombre", description = "${api.servicio.getByNombre.description}")
@@ -58,7 +72,10 @@ public class ServicioController {
     public ResponseEntity<List<ServicioDto>> getServiciosByNombre(
             @Parameter(description = "Texto a buscar en el nombre", required = true)
             @RequestParam String nombre) {
-        return ResponseUtil.ok(servicioService.getServiciosByNombre(nombre));
+        logger.info("Buscando servicios por nombre: {}", nombre);
+        List<ServicioDto> servicios = servicioService.getServiciosByNombre(nombre);
+        logger.debug("Se encontraron {} servicios con el nombre: {}", servicios.size(), nombre);
+        return ResponseUtil.ok(servicios);
     }
     
     @Operation(summary = "Buscar servicios por precio máximo", description = "${api.servicio.getByPrecioMax.description}")
@@ -70,7 +87,10 @@ public class ServicioController {
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMenorIgual(
             @Parameter(description = "Precio máximo", required = true)
             @PathVariable BigDecimal precio) {
-        return ResponseUtil.ok(servicioService.getServiciosPrecioMenorIgual(precio));
+        logger.info("Buscando servicios con precio menor o igual a: {}", precio);
+        List<ServicioDto> servicios = servicioService.getServiciosPrecioMenorIgual(precio);
+        logger.debug("Se encontraron {} servicios con precio menor o igual a {}", servicios.size(), precio);
+        return ResponseUtil.ok(servicios);
     }
     
     @Operation(summary = "Buscar servicios por precio mínimo", description = "${api.servicio.getByPrecioMin.description}")
@@ -82,7 +102,10 @@ public class ServicioController {
     public ResponseEntity<List<ServicioDto>> getServiciosPrecioMayorIgual(
             @Parameter(description = "Precio mínimo", required = true)
             @PathVariable BigDecimal precio) {
-        return ResponseUtil.ok(servicioService.getServiciosPrecioMayorIgual(precio));
+        logger.info("Buscando servicios con precio mayor o igual a: {}", precio);
+        List<ServicioDto> servicios = servicioService.getServiciosPrecioMayorIgual(precio);
+        logger.debug("Se encontraron {} servicios con precio mayor o igual a {}", servicios.size(), precio);
+        return ResponseUtil.ok(servicios);
     }
     
     @Operation(summary = "Crear un nuevo servicio", description = "${api.servicio.create.description}")
@@ -96,7 +119,10 @@ public class ServicioController {
     public ResponseEntity<ServicioDto> createServicio(
             @Parameter(description = "Datos del servicio", required = true)
             @Valid @RequestBody ServicioDto servicioDto) {
-        return ResponseUtil.created(servicioService.createServicio(servicioDto));
+        logger.info("Creando nuevo servicio: {}", servicioDto.getNombre());
+        ServicioDto createdServicio = servicioService.createServicio(servicioDto);
+        logger.debug("Servicio creado con ID: {}", createdServicio.getId());
+        return ResponseUtil.created(createdServicio);
     }
     
     @Operation(summary = "Actualizar servicio", description = "${api.servicio.update.description}")
@@ -113,8 +139,15 @@ public class ServicioController {
             @PathVariable Long id, 
             @Parameter(description = "Datos actualizados del servicio", required = true)
             @Valid @RequestBody ServicioDto servicioDto) {
+        logger.info("Actualizando servicio con ID: {}", id);
         ServicioDto updatedServicio = servicioService.updateServicio(id, servicioDto);
-        return updatedServicio != null ? ResponseUtil.ok(updatedServicio) : ResponseUtil.notFound();
+        if (updatedServicio != null) {
+            logger.debug("Servicio actualizado correctamente: {}", updatedServicio.getNombre());
+            return ResponseUtil.ok(updatedServicio);
+        } else {
+            logger.warn("No se pudo actualizar el servicio con ID: {} - No encontrado", id);
+            return ResponseUtil.notFound();
+        }
     }
     
     @Operation(summary = "Eliminar servicio", description = "${api.servicio.delete.description}")
@@ -128,7 +161,14 @@ public class ServicioController {
     public ResponseEntity<Void> deleteServicio(
             @Parameter(description = "ID del servicio", required = true)
             @PathVariable Long id) {
-        return ResponseUtil.deleteResponse(servicioService.deleteServicio(id));
+        logger.info("Eliminando servicio con ID: {}", id);
+        boolean deleted = servicioService.deleteServicio(id);
+        if (deleted) {
+            logger.debug("Servicio eliminado correctamente");
+        } else {
+            logger.warn("No se pudo eliminar el servicio con ID: {} - No encontrado", id);
+        }
+        return ResponseUtil.deleteResponse(deleted);
     }
 
     /**
@@ -142,6 +182,9 @@ public class ServicioController {
     @GetMapping("/veterinarios")
     @PreAuthorize("hasAuthority('SERVICIO_READ')")
     public ResponseEntity<List<ServicioDto>> getServiciosVeterinarios() {
-        return ResponseUtil.ok(servicioService.findAllExcluyendoPeluqueria());
+        logger.info("Obteniendo lista de servicios veterinarios (excluyendo peluquería)");
+        List<ServicioDto> servicios = servicioService.findAllExcluyendoPeluqueria();
+        logger.debug("Se encontraron {} servicios veterinarios", servicios.size());
+        return ResponseUtil.ok(servicios);
     }
 }

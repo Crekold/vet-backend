@@ -69,10 +69,12 @@ public class AuthController {
             @Parameter(description = "Credenciales de usuario", required = true)
             @Valid @RequestBody LoginRequestDto loginRequest) {
         
+        logger.info("Intento de inicio de sesión para usuario: {}", loginRequest.getNombreUsuario());
+        
         // 0. Verificar si la cuenta está activa ANTES de verificar bloqueo o autenticar
         Optional<Usuario> usuarioOpt = usuarioService.getUsuarioEntityByNombreUsuario(loginRequest.getNombreUsuario());
         if (usuarioOpt.isPresent() && !usuarioOpt.get().isActivo()) {
-            logger.warn("Intento de login para usuario inactivo: {}", loginRequest.getNombreUsuario());
+            logger.warn("Intento de login rechazado - Usuario inactivo: {}", loginRequest.getNombreUsuario());
             // Puedes devolver 401 Unauthorized o 403 Forbidden, 401 es común para credenciales inválidas/problemas de cuenta
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                    .body("Usuario inactivo o no encontrado."); 
@@ -81,7 +83,7 @@ public class AuthController {
 
         // 1. Verificar si la cuenta está bloqueada ANTES de intentar autenticar
         if (usuarioService.isAccountLocked(loginRequest.getNombreUsuario())) {
-             logger.warn("Intento de login fallido para usuario bloqueado: {}", loginRequest.getNombreUsuario());
+            logger.warn("Intento de login rechazado - Usuario bloqueado: {}", loginRequest.getNombreUsuario());
              // Usar LockedException o devolver directamente 423 Locked
              // throw new LockedException("La cuenta está bloqueada temporalmente debido a múltiples intentos fallidos.");
              return ResponseEntity.status(HttpStatus.LOCKED)
@@ -97,6 +99,7 @@ public class AuthController {
             
             // 3. Si la autenticación es exitosa, resetear intentos fallidos
             usuarioService.processLoginSuccess(loginRequest.getNombreUsuario());
+            logger.info("Inicio de sesión exitoso para usuario: {}", loginRequest.getNombreUsuario());
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
@@ -114,6 +117,9 @@ public class AuthController {
 
             // 4. Verificar si la contraseña ha expirado
             boolean passwordExpired = usuarioService.isPasswordExpired(userDetails.getUsername());
+            if (passwordExpired) {
+                logger.info("Contraseña expirada para usuario: {}", userDetails.getUsername());
+            }
             
             LoginResponseDto responseDto = LoginResponseDto.builder()
                     .mensaje("Login exitoso")
@@ -129,7 +135,7 @@ public class AuthController {
 
         } catch (BadCredentialsException e) {
             // 5. Si las credenciales son incorrectas, procesar intento fallido
-            logger.warn("Credenciales inválidas para usuario: {}", loginRequest.getNombreUsuario());
+            logger.warn("Intento de login fallido - Credenciales inválidas para usuario: {}", loginRequest.getNombreUsuario());
             // Solo procesar fallo si el usuario existe y está activo
             if (usuarioOpt.isPresent() && usuarioOpt.get().isActivo()) {
                 usuarioService.processLoginFailure(loginRequest.getNombreUsuario());
@@ -157,12 +163,15 @@ public class AuthController {
             @Parameter(description = "Datos del usuario a registrar", required = true)
             @Valid @RequestBody UsuarioDto usuarioDto) {
         
+        logger.info("Iniciando registro de nuevo usuario: {}", usuarioDto.getNombreUsuario());
         // La validación de existencia y complejidad ahora está principalmente en el servicio
         try {
             UsuarioDto nuevoUsuario = usuarioService.createUsuario(usuarioDto);
+            logger.info("Usuario registrado exitosamente: {}", nuevoUsuario.getNombreUsuario());
             // Devolver 201 Created en lugar de 200 OK para registro
             return ResponseUtil.created(nuevoUsuario); 
         } catch (BadRequestException e) {
+            logger.warn("Error en registro de usuario {}: {}", usuarioDto.getNombreUsuario(), e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -178,10 +187,11 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(
             @Parameter(description = "Correo electrónico del usuario", required = true)
             @Valid @RequestBody ForgotPasswordDto forgotPasswordDto) {
+        logger.info("Solicitud de restablecimiento de contraseña para correo: {}", forgotPasswordDto.getEmail());
         try {
             String token = usuarioService.createPasswordResetToken(forgotPasswordDto.getEmail());
             // --- Aquí iría la lógica para enviar el correo con el token ---
-            logger.info("Token de restablecimiento generado para {}: {}", forgotPasswordDto.getEmail(), token); // Loguear token solo para depuración
+            logger.debug("Token de restablecimiento generado para correo: {}", forgotPasswordDto.getEmail()); // Loguear token solo para depuración
             // No enviar el token en la respuesta en producción
             return ResponseEntity.ok("Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña.");
         } catch (ResourceNotFoundException e) {
@@ -189,7 +199,8 @@ public class AuthController {
              logger.warn("Intento de restablecimiento para correo no registrado: {}", forgotPasswordDto.getEmail());
              return ResponseEntity.ok("Si el correo está registrado, recibirás instrucciones para restablecer tu contraseña.");
         } catch (Exception e) {
-            logger.error("Error al solicitar restablecimiento de contraseña para {}", forgotPasswordDto.getEmail(), e);
+            logger.error("Error al procesar solicitud de restablecimiento para correo {}: {}", 
+                        forgotPasswordDto.getEmail(), e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la solicitud.");
         }
     }
@@ -203,14 +214,16 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(
             @Parameter(description = "Token de restablecimiento y nueva contraseña", required = true)
             @Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+        logger.info("Intento de restablecimiento de contraseña con token");
         try {
             usuarioService.resetPassword(resetPasswordDto.getToken(), resetPasswordDto.getNewPassword());
+            logger.info("Contraseña restablecida exitosamente mediante token");
             return ResponseEntity.ok("Contraseña restablecida exitosamente.");
         } catch (ResourceNotFoundException | TokenExpiredException | BadRequestException e) { // Capturar excepciones específicas
             logger.warn("Fallo al restablecer contraseña: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Error al restablecer contraseña", e);
+            logger.error("Error inesperado al restablecer contraseña: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la solicitud.");
         }
     }

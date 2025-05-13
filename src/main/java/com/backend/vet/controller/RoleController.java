@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +24,12 @@ import java.util.Set;
 @RequestMapping("/api/roles")
 @Tag(name = "Roles", description = "API para la gestión de roles de usuarios")
 public class RoleController {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(RoleController.class);
+
     @Autowired
     private RoleService roleService;
-    
+
     @Operation(summary = "Obtener todos los roles", description = "${api.role.getAll.description}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}")
@@ -33,9 +37,12 @@ public class RoleController {
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_READ')")
     public ResponseEntity<List<RoleDto>> getAllRoles() {
-        return ResponseUtil.ok(roleService.getAllRoles());
+        logger.info("Solicitud para obtener todos los roles del sistema");
+        List<RoleDto> roles = roleService.getAllRoles();
+        logger.debug("Se encontraron {} roles en el sistema", roles.size());
+        return ResponseUtil.ok(roles);
     }
-    
+
     @Operation(summary = "Obtener rol por ID", description = "${api.role.getById.description}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
@@ -49,7 +56,7 @@ public class RoleController {
         RoleDto role = roleService.getRoleById(id);
         return role != null ? ResponseUtil.ok(role) : ResponseUtil.notFound();
     }
-    
+
     @Operation(summary = "Crear nuevo rol", description = "${api.role.create.description}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "${api.response-codes.created.description}"),
@@ -63,7 +70,7 @@ public class RoleController {
             @Valid @RequestBody RoleDto roleDto) {
         return ResponseUtil.created(roleService.createRole(roleDto));
     }
-    
+
     @Operation(summary = "Actualizar rol", description = "${api.role.update.description}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "${api.response-codes.ok.description}"),
@@ -75,13 +82,13 @@ public class RoleController {
     @PreAuthorize("hasAuthority('ROLE_UPDATE')")
     public ResponseEntity<RoleDto> updateRole(
             @Parameter(description = "ID del rol", required = true)
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Parameter(description = "Datos actualizados del rol", required = true)
             @Valid @RequestBody RoleDto roleDto) {
         RoleDto updatedRole = roleService.updateRole(id, roleDto);
         return updatedRole != null ? ResponseUtil.ok(updatedRole) : ResponseUtil.notFound();
     }
-    
+
     @Operation(summary = "Eliminar rol", description = "${api.role.delete.description}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "${api.response-codes.no-content.description}"),

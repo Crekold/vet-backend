@@ -14,10 +14,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
-    private static final Logger logger = Logger.getLogger(AuthTokenFilter.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Autowired
     private JwtUtils jwtUtils;
