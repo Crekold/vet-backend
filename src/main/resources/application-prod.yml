@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: vet
+  datasource:
+    url: jdbc:postgresql://db:5432/vet
+    username: postgres
+    password: pass123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+# Logging simple
+logging:
+  level:
+    '[com.backend.vet]': INFO
+    '[org.springframework]': WARN
+
+server:
+  port: 8080

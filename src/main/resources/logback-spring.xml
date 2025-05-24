@@ -1,35 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- Configuración del patrón de log para la consola -->
+    <!-- Configuración simple para la consola -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Configuración del patrón de log para el archivo -->
-    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- Archivo de log simple -->
+    <appender name="File" class="ch.qos.logback.core.FileAppender">
         <file>./logs/vet-backend.log</file>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>./logs/archived/vet-backend.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>3GB</totalSizeCap>
-        </rollingPolicy>
     </appender>
 
-    <!-- Configuraciones de niveles de log -->
-    <logger name="com.backend.vet.controller" level="DEBUG"/>
-    <logger name="org.springframework" level="INFO"/>
-    <logger name="org.hibernate" level="INFO"/>
+    <!-- Configuración simple -->
+    <logger name="com.backend.vet" level="INFO"/>
+    <logger name="org.springframework" level="WARN"/>
 
-    <!-- Configuración raíz -->
     <root level="INFO">
         <appender-ref ref="Console"/>
-        <appender-ref ref="RollingFile"/>
+        <appender-ref ref="File"/>
     </root>
 </configuration>
