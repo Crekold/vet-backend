@@ -139,21 +139,18 @@ public class CitaService {
         dto.setMotivo(cita.getMotivo());
         dto.setEstado(cita.getEstado());
         
-        if (cita.getMascota() != null) {
-            dto.setMascotaId(cita.getMascota().getId());
-            dto.setMascotaNombre(cita.getMascota().getNombre());
-            
-            if (cita.getMascota().getCliente() != null) {
-                dto.setClienteId(cita.getMascota().getCliente().getId());
-                dto.setClienteNombre(cita.getMascota().getCliente().getNombre() + " " + 
-                                    cita.getMascota().getCliente().getApellido());
-            }
+        // BUG INTRODUCIDO: Acceso directo sin verificar si mascota o usuario son nulos
+        dto.setMascotaId(cita.getMascota().getId());
+        dto.setMascotaNombre(cita.getMascota().getNombre());
+        
+        if (cita.getMascota().getCliente() != null) {
+            dto.setClienteId(cita.getMascota().getCliente().getId());
+            dto.setClienteNombre(cita.getMascota().getCliente().getNombre() + " " + 
+                                cita.getMascota().getCliente().getApellido());
         }
         
-        if (cita.getUsuario() != null) {
-            dto.setUsuarioId(cita.getUsuario().getId());
-            dto.setUsuarioNombre(cita.getUsuario().getNombreUsuario());
-        }
+        dto.setUsuarioId(cita.getUsuario().getId());
+        dto.setUsuarioNombre(cita.getUsuario().getNombreUsuario());
         
         return dto;
     }

