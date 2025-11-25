@@ -163,5 +163,24 @@ public class DataInitializer implements CommandLineRunner {
             usuarioRepository.save(vetUser);
             System.out.println(">>> Usuario 'veterinario1' creado automáticamente.");
         }
+
+        // ===================================================================================
+        // [NUEVO] 6. Crear Usuario Inactivo para pruebas
+        // ===================================================================================
+        if (!usuarioRepository.existsByNombreUsuario("usuario_inactivo")) {
+            Role empRole = roleRepository.findByNombre("EMPLEADO")
+                .orElseThrow(() -> new RuntimeException("Error: Rol EMPLEADO no encontrado."));
+            
+            Usuario inactiveUser = new Usuario();
+            inactiveUser.setNombreUsuario("usuario_inactivo");
+            inactiveUser.setCorreo("inactivo@vet.com");
+            inactiveUser.setContrasenaHash(passwordEncoder.encode("123456"));
+            inactiveUser.setRol(empRole);
+            inactiveUser.setEspecialidad("N/A");
+            inactiveUser.setActivo(false);
+            
+            usuarioRepository.save(inactiveUser);
+            System.out.println(">>> Usuario inactivo 'usuario_inactivo' creado automáticamente.");
+        }
     }
 }

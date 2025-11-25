@@ -1,4 +1,4 @@
-package com.backend.vet.ezequielgomez;
+package com.backend.vet.ezequielgomez.atdd;
 
 import java.time.Duration;
 import org.openqa.selenium.By;

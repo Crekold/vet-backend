@@ -1,4 +1,4 @@
-package com.backend.vet.ezequielgomez;
+package com.backend.vet.ezequielgomez.tdd;
 
 import com.backend.vet.controller.AuthController;
 import com.backend.vet.dto.LoginRequestDto;

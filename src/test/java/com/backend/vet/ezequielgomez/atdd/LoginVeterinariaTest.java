@@ -1,4 +1,4 @@
-package com.backend.vet.ezequielgomez; // Asegúrate que el paquete coincida con tu estructura
+package com.backend.vet.ezequielgomez.atdd; // Asegúrate que el paquete coincida con tu estructura
 
 import java.time.Duration;
 import org.openqa.selenium.By;
